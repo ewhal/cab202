@@ -18,7 +18,7 @@ sprite_id marble;
 void setup( void ) {
 
 	// (b) Call sprite_create() to initialise marble.
-	marble = sprite_create(8, screen_height(), 1, 1, "O");
+	marble = sprite_create(8, screen_height()-1, 1, 1, "O");
 	// (c) Call sprite_turn_to() to set the sprite moving.
 	sprite_turn_to(marble, 0.1, 0);
 	// (d) Call sprite_draw() to make sprite visible at the start of the game.
