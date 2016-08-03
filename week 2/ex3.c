@@ -1,14 +1,20 @@
 #include <cab202_graphics.h>
 
 void draw_border ( void ) {
-    // INSERT CODE TO DRAW BORDER HERE
-	// top
-	draw_line(2, 1, screen_width()-1-4, 1, '*');
-	// bottom
-	draw_line(2, screen_height()-1-5, screen_width()-1-4, screen_height()-1-5, '*');
+	int left = 2;
+	int right = 4;
+	int top = 1;
+	int bottom = 5;
 
-	draw_line(2, 1, 2, screen_height()-1-5, '*');
-	draw_line(screen_width()-1-4, 1, screen_width()-1-4, screen_height()-1-5, '*');
+	// top
+	draw_line(left, top, screen_width()-1-right, top, '*');
+	// bottom
+	draw_line(left, screen_height()-1-bottom, screen_width()-1-right, screen_height()-1-right, '*');
+
+	// left 
+	draw_line(left, top, left, screen_height()-1-bottom, '*');
+	// right
+	draw_line(screen_width()-1-right, top, screen_width()-1-right, screen_height()-1-right, '*');
 
     // And keep the following line intact!
     show_screen();
