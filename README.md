@@ -1,2 +1,2 @@
 # cab202
-CAB202 files
+All weekly workshop questions and AMS questions for CAB202 microprocessors and digital systems.
