@@ -23,6 +23,7 @@ void draw_rect ( void ) {
     //  (c) Insert code to draw the outline of the rectangle defined by the global variables.
     //      If either of the width or height is less than or equal to zero,
     //      the function must not draw anything.
+	// check to see if rects can be drawn
 	if (across > 0 && down > 0) {
 
 		// bottom
