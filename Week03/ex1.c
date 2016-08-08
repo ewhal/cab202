@@ -25,17 +25,38 @@ void setup(void) {
 // Play one turn of game.
 void process(void) {
     // Keep the next line intact.
-    sprite_step(bird);
+	sprite_step(bird);
+	int w = screen_width(), wz = 6;
+	int h = screen_height(), hz = 3;
 
     //  (a) Insert code here to detect collision with the bottom, left, 
     //		and right bounds of the terminal window. If the bird goes outside 
     //		these boundaries, it must reflect back using the method defined 
-    //		in Lecture 2. 
 
     //  (b) [Optional] Modify these two lines _if necessary_ to accommodate the 
     //		modified dynamics introduced by bouncing off walls and floor.
+	int x = round(sprite_x(bird));
+	int y = round(sprite_y(bird));
     double dx = sprite_dx(bird);
     double dy = sprite_dy(bird);
+
+	if (x < 0) {
+		dx = -dx;
+	}
+
+	if (x == w - wz) {
+		dx = -dx;
+	}
+
+	if (y == 1) {
+		dy = -dy;
+	}
+
+	if (y == h) {
+		dy = -dy;
+	}
+
+
 
     //  Keep the remainder intact.
     dy += 0.003;
