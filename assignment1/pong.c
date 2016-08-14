@@ -172,9 +172,11 @@ void process() {
 		dx = -dx;
 		lives = lives - 1;
 		new_game = true;
+		setup();
+		return;
 	}
 
-	if (ball_x == paddle_x && ball_y <= paddle_y + (sprite_height(player_paddle) /2) && ball_y >= paddle_y - (sprite_height(player_paddle) /2)) {
+	if (ball_x == paddle_x && ball_y <= paddle_y + (sprite_height(player_paddle)) && ball_y >= paddle_y) {
 		score++;
 		dx = -dx;
 		dir_changed = true;
@@ -189,8 +191,6 @@ void process() {
 	if (lives == 0) {
 		game_over = true;
 		draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
-		draw_string(w - 9, h + 1, "Eliot Whalan");
-		draw_string(w - 9, h + 2, "n9446800");
 		wait_char();
 
 
