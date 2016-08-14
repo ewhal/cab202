@@ -16,6 +16,7 @@ int time = 0;
 bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
+bool new_game = true;
 
 static char * paddle_image = 
 	"|"
@@ -98,6 +99,16 @@ void process() {
 	draw_border();
 	display_hud();
 
+
+	if (new_game) {
+		int now = get_current_time();
+		srand(now);
+		sprite_turn_to(ball, 0.2, 0.0);
+		int angle = rand() % 270;
+		sprite_turn(ball, angle);
+		new_game = false;
+	}
+
 	if (key == 'w' && y > 4) {
 		sprite_move(player_paddle, 0, -1);
 	}
@@ -106,10 +117,19 @@ void process() {
 		sprite_move(player_paddle, 0, +1);
 	}
 
+	if (key == 'l') {
+		if (level < 4) {
+			level++;
+		}
+	}
+
+
+
 
 	sprite_draw(player_paddle);
 //	sprite_draw(computer_paddle);
 	sprite_draw(ball);
+	sprite_step(ball);
 
 
 }
