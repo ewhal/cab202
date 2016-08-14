@@ -26,8 +26,8 @@ void setup(void) {
 void process(void) {
     // Keep the next line intact.
 	sprite_step(bird);
-	int w = screen_width(), wz = 6;
-	int h = screen_height(), hz = 3;
+	int w = screen_width(), wz = sprite_width(bird);
+	int h = screen_height(), hz = sprite_height(bird);
 
     //  (a) Insert code here to detect collision with the bottom, left, 
     //		and right bounds of the terminal window. If the bird goes outside 
@@ -37,26 +37,22 @@ void process(void) {
     //		modified dynamics introduced by bouncing off walls and floor.
 	int x = round(sprite_x(bird));
 	int y = round(sprite_y(bird));
+
     double dx = sprite_dx(bird);
     double dy = sprite_dy(bird);
 
-	if (x < 0) {
+	if (x == -1 || x == w - wz) {
 		dx = -dx;
+		sprite_back(bird );
+
+
 	}
 
-	if (x == w - wz) {
-		dx = -dx;
-	}
-
-	if (y == 1) {
+	if (y == h - hz + 1 ) {
 		dy = -dy;
+		sprite_back(bird );
+
 	}
-
-	if (y == h) {
-		dy = -dy;
-	}
-
-
 
     //  Keep the remainder intact.
     dy += 0.003;
