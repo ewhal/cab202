@@ -86,6 +86,7 @@ void process() {
 	int h = screen_height(), ph = PADDLE_HEIGHT;
 	int y = round(sprite_y(player_paddle));
 	char key = get_char();
+	bool dir_changed = false;
 
 	if (key == 'h' || help_hud == true) {
 		show_help();
@@ -123,8 +124,21 @@ void process() {
 		}
 	}
 
+	int ball_x = round(sprite_x(ball));
+	int ball_y = round(sprite_y(ball));
 
+	double dx = sprite_dx(ball);
+	double dy = sprite_dy(ball);
 
+	if (ball_y == 3 || ball_y == h - 1) {
+		dy = -dy;
+		dir_changed = true;
+	}
+
+	if (dir_changed) {
+		sprite_back(ball);
+		sprite_turn_to(ball, dx, dy);
+	}
 
 	sprite_draw(player_paddle);
 //	sprite_draw(computer_paddle);
