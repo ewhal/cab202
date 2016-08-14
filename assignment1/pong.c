@@ -15,7 +15,7 @@ int level = 1;
 int time = 0;
 bool game_over = false;
 bool update_screen = true;
-
+bool help_hud = true;
 
 static char * paddle_image = 
 	"|"
@@ -33,8 +33,8 @@ sprite_id computer_paddle;
 sprite_id ball;
 
 void setup() {
-	player_paddle = sprite_create(screen_width() - 1 - PADDLE_WIDTH, screen_height() - 7 / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
-	computer_paddle =  sprite_create( 1 + PADDLE_WIDTH, screen_height() - 7 / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	player_paddle = sprite_create(screen_width() - 2 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	computer_paddle =  sprite_create( 2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT )/ 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 }
 void draw_border() {
@@ -70,8 +70,8 @@ void show_help() {
 	int w = screen_width() / 2;
 	int h = (screen_height() - 7) / 2;
 	draw_string(w - 7, h, "CAB202 Assignment 1 - Pong");
-	draw_string(w - 7, h + 1, "Eliot Whalan");
-	draw_string(w - 7, h + 2, "n9446800");
+	draw_string(w - 7, h + 1, "");
+	draw_string(w - 7, h + 2, "");
 	draw_string(w - 7, h + 3, "Controls");
 	draw_string(w - 7, h + 4, "wasd - movement");
 	draw_string(w - 7, h + 5, "l - next level");
@@ -81,8 +81,37 @@ void show_help() {
 }
 
 void process() {
-	int w = screen_width(), ph = PADDLE_WIDTH;
-	int h = screen_height(), pw = PADDLE_HEIGHT;
+	int w = screen_width(), pw = PADDLE_WIDTH;
+	int h = screen_height(), ph = PADDLE_HEIGHT;
+	int y = round(sprite_y(player_paddle));
+
+
+
+//	while (get_char() <= 0 && help_hud == true) {
+//
+//		show_help();
+//	}
+	clear_screen();
+	draw_border();
+	display_hud();
+
+
+	help_hud == false;
+	char key = get_char();
+
+
+	if (key == 'w' && y > 4) {
+		sprite_move(player_paddle, 0, -1);
+	}
+	if (key == 's' && y < h - ph - 1) {
+		sprite_move(player_paddle, 0, +1);
+	}
+
+	sprite_draw(player_paddle);
+//	sprite_draw(computer_paddle);
+	sprite_draw(ball);
+
+
 }
 void cleanup() {
 
@@ -95,7 +124,7 @@ int main( void ) {
 
 	show_screen();
 
-	while (!game_over) {
+	while (lives != 0) {
 		process();
 		if (update_screen) {
 			show_screen();
