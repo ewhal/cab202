@@ -6,8 +6,8 @@
 #include <cab202_timers.h>
 
 #define DELAY (10)
-#define PADDLE_HEIGHT (7)
 #define PADDLE_WIDTH (1)
+int PADDLE_HEIGHT = 7;
 
 int lives = 10;
 int score = 0;
@@ -17,6 +17,8 @@ bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
 bool new_game = true;
+bool debug_on = false;
+
 
 static char * paddle_image = 
 	"|"
@@ -34,7 +36,10 @@ sprite_id computer_paddle;
 sprite_id ball;
 
 void setup() {
-	player_paddle = sprite_create(screen_width() - 2 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	if (screen_height() < 21) {
+		PADDLE_HEIGHT = (screen_width() - 7 -1) / 2;
+	}
+	player_paddle = sprite_create(screen_width() - 2 - 1 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
 	computer_paddle =  sprite_create( 2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT )/ 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 }
@@ -64,20 +69,36 @@ void display_hud() {
 }
 
 void debug_hud() {
+	int width = screen_width() / 4;
+	draw_formatted(2, 2, "ball (%d, %d)", sprite_x(ball), sprite_y(ball));
+	draw_formatted(width, 2, "paddle (%d, %d)", sprite_x(player_paddle), sprite_y(player_paddle));
+	show_screen();
 
+
+}
+void count_down() {
+	int w = screen_width() / 2;
+	int h = screen_height() / 2;
+	for (int i = 3; i > 0; i--) {
+		draw_formatted(w, h, "Count Down: %d", i);
+		show_screen();
+		timer_pause(300);
+	}
 }
 
 void show_help() {
 	int w = screen_width() / 2;
-	int h = (screen_height() - 7) / 2;
+	int h = (screen_height() - 8) / 2;
 	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
 	draw_string(w - 9, h + 1, "Eliot Whalan");
 	draw_string(w - 9, h + 2, "n9446800");
 	draw_string(w - 9, h + 3, "Controls");
-	draw_string(w - 9, h + 4, "ws - movement");
+	draw_string(w - 9, h + 4, "jk - movement");
 	draw_string(w - 9, h + 5, "l - next level");
 	draw_string(w - 9, h + 6, "h - help menu");
+	draw_string(w - 9, h + 7, "Press any key");
 
+	show_screen();
 
 }
 
@@ -90,7 +111,6 @@ void process() {
 
 	if (key == 'h' || help_hud == true) {
 		show_help();
-		show_screen();
 		wait_char();
 		help_hud = false;
         return;
@@ -104,10 +124,14 @@ void process() {
 	if (new_game) {
 		int now = get_current_time();
 		srand(now);
+
 		sprite_turn_to(ball, 0.4, 0.0);
-		int angle = rand() % 270;
+		int angle = rand() % 180;
 		sprite_turn(ball, angle);
+//		count_down();
 		new_game = false;
+//		show_screen();
+
 	}
 
 	if (key == 'w' && y > 4) {
@@ -118,12 +142,16 @@ void process() {
 		sprite_move(player_paddle, 0, +1);
 	}
 
+
 	if (key == 'l') {
 		if (level < 4) {
 			level++;
 		}
 	}
 
+	if (debug_on) {
+		debug_hud();
+	}
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
 	int paddle_x = round(sprite_x(player_paddle));
@@ -134,30 +162,28 @@ void process() {
 
 	if (ball_y == 3 || ball_y == h - 1) {
 		dy = -dy;
-		sprite_back(ball);
 		dir_changed = true;
 	}
 	if (ball_x == 0) {
 		dx = -dx;
-		sprite_back(ball);
 		dir_changed = true;
 	}
 
 	if (ball_x == w - 1) {
-		sprite_back(ball);
+		dx = -dx;
 		lives = lives - 1;
 		new_game = true;
 	}
 
-	if (ball_x == paddle_x && ball_y == paddle_y) {
+	if (ball_x == paddle_x && ball_y <= paddle_y + (sprite_height(player_paddle) /2) && ball_y >= paddle_y - (sprite_height(player_paddle) /2)) {
 		score++;
 		dx = -dx;
 		dir_changed = true;
-		sprite_back(ball);
 
 	}
 
 	if (dir_changed) {
+		sprite_back(ball);
 		sprite_turn_to(ball, dx, dy);
 	}
 
@@ -176,8 +202,6 @@ int main( void ) {
 	setup_screen();
 
 	setup();
-
-	show_screen();
 
 	while (lives != 0) {
 		process();
