@@ -104,7 +104,7 @@ void process() {
 	if (new_game) {
 		int now = get_current_time();
 		srand(now);
-		sprite_turn_to(ball, 0.2, 0.0);
+		sprite_turn_to(ball, 0.4, 0.0);
 		int angle = rand() % 270;
 		sprite_turn(ball, angle);
 		new_game = false;
@@ -126,17 +126,38 @@ void process() {
 
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
+	int paddle_x = round(sprite_x(player_paddle));
+	int paddle_y = round(sprite_y(player_paddle));
 
 	double dx = sprite_dx(ball);
 	double dy = sprite_dy(ball);
 
 	if (ball_y == 3 || ball_y == h - 1) {
 		dy = -dy;
+		sprite_back(ball);
+		dir_changed = true;
+	}
+	if (ball_x == 0) {
+		dx = -dx;
+		sprite_back(ball);
 		dir_changed = true;
 	}
 
-	if (dir_changed) {
+	if (ball_x == w - 1) {
 		sprite_back(ball);
+		lives = lives - 1;
+		new_game = true;
+	}
+
+	if (ball_x == paddle_x && ball_y == paddle_y) {
+		score++;
+		dx = -dx;
+		dir_changed = true;
+		sprite_back(ball);
+
+	}
+
+	if (dir_changed) {
 		sprite_turn_to(ball, dx, dy);
 	}
 
