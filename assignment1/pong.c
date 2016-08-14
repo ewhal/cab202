@@ -5,16 +5,42 @@
 #include <cab202_sprites.h>
 #include <cab202_timers.h>
 
+#define DELAY (10)
+#define PADDLE_HEIGHT (7)
+#define PADDLE_WIDTH (1)
+
 int lives = 10;
 int score = 0;
 int level = 1;
 int time = 0;
+bool game_over = false;
+bool update_screen = true;
 
-sprite_id paddle;
 
+static char * paddle_image = 
+	"|"
+	"|"
+	"|"
+	"|"
+	"|"
+	"|"
+	"|";
+
+static char * ball = "O";
+
+sprite_id player_paddle;
+sprite_id computer_paddle;
+sprite_id ball;
+
+void setup() {
+	player_paddle = sprite_create(screen_width() - 1 - PADDLE_WIDTH, screen_height() - 7 / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	computer_paddle =  sprite_create( 1 + PADDLE_WIDTH, screen_height() - 7 / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball);
+}
 void draw_border() {
 	// top
 	draw_line(0, 0, screen_width()-1, 0, '*');
+	// top_bottom
 	draw_line(0, 3, screen_width()-1, 3, '*');
 	// bottom
 	draw_line(0, screen_height()-1, screen_width()-1, screen_height()-1, '*');
@@ -41,33 +67,43 @@ void debug_hud() {
 }
 
 void show_help() {
-	int w = screen_width();
-	int h = screen_height() / 2;
-	clear_screen();
-	draw_border();
-	draw_string(w / 2, h / 2, "CAB202 Assignment 1 - Pong");
-	draw_string(w / 2, h + 1 / 2, "Eliot Whalan");
-	draw_string(w / 2, h + 2 / 2, "n9446800");
+	int w = screen_width() / 2;
+	int h = (screen_height() - 7) / 2;
+	draw_string(w - 7, h, "CAB202 Assignment 1 - Pong");
+	draw_string(w - 7, h + 1, "Eliot Whalan");
+	draw_string(w - 7, h + 2, "n9446800");
+	draw_string(w - 7, h + 3, "Controls");
+	draw_string(w - 7, h + 4, "wasd - movement");
+	draw_string(w - 7, h + 5, "l - next level");
+	draw_string(w - 7, h + 6, "h - help");
 	show_screen();
+
+}
+
+void process() {
+	int w = screen_width(), ph = PADDLE_WIDTH;
+	int h = screen_height(), pw = PADDLE_HEIGHT;
+}
+void cleanup() {
 
 }
 
 int main( void ) {
 	setup_screen();
 
-
-	//  (q) Refresh the display.
+	setup();
 
 	show_screen();
-	timer_pause(1000);
-	show_help();
-	draw_border();
-	display_hud();
 
-	while ( get_char() >= 0 ) {  /* loop until no chars buffered */ }
+	while (!game_over) {
+		process();
+		if (update_screen) {
+			show_screen();
+		}
+		timer_pause(DELAY);
+	}
 
-	//  (r) Wait for a key-press, and return to the calling function.
-	wait_char();
+	cleanup();
 	return 0;
 }
 
