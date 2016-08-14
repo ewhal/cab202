@@ -26,8 +26,8 @@ void setup(void) {
 void process(void) {
     // Keep the next line intact.
 	sprite_step(bird);
-	int w = screen_width(), wz = sprite_width(bird);
-	int h = screen_height(), hz = sprite_height(bird);
+	int w = screen_width(), wz = 6 - 1;
+	int h = screen_height(), hz = 3 - 1;
 
     //  (a) Insert code here to detect collision with the bottom, left, 
     //		and right bounds of the terminal window. If the bird goes outside 
@@ -48,7 +48,7 @@ void process(void) {
 
 	}
 
-	if (y == h - hz + 1 ) {
+	if (y == h - hz) {
 		dy = -dy;
 		sprite_back(bird );
 
