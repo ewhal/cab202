@@ -26,7 +26,7 @@ static char * paddle_image =
 	"|"
 	"|";
 
-static char * ball = "O";
+static char * ball_image = "O";
 
 sprite_id player_paddle;
 sprite_id computer_paddle;
@@ -35,7 +35,7 @@ sprite_id ball;
 void setup() {
 	player_paddle = sprite_create(screen_width() - 1 - PADDLE_WIDTH, screen_height() - 7 / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
 	computer_paddle =  sprite_create( 1 + PADDLE_WIDTH, screen_height() - 7 / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
-	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball);
+	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 }
 void draw_border() {
 	// top
