@@ -12,7 +12,9 @@ int PADDLE_HEIGHT = 7;
 int lives = 10;
 int score = 0;
 int level = 1;
-int time = 0;
+int seconds = 0;
+int minutes = 0;
+
 bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
@@ -43,6 +45,7 @@ void setup() {
 	computer_paddle =  sprite_create( 2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT )/ 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 }
+
 void draw_border() {
 	// top
 	draw_line(0, 0, screen_width()-1, 0, '*');
@@ -64,7 +67,7 @@ void display_hud() {
 	draw_formatted(2, 2, " lives: %d", lives);
 	draw_formatted(width, 2, " score: %d", score);
 	draw_formatted(width * 2, 2, " level: %d", level);
-	draw_formatted(width * 3, 2, " Time: (%d)", time);
+	draw_formatted(width * 3, 2, " Time: %d:%d", minutes, seconds);
 	show_screen();
 }
 
@@ -75,6 +78,15 @@ void debug_hud() {
 	show_screen();
 
 
+}
+
+void clock() {
+	seconds++;
+	if (seconds == 60) {
+		seconds = 0;
+		minutes++;
+	}
+	return;
 }
 void count_down() {
 	int w = screen_width() / 2;
@@ -116,6 +128,7 @@ void process() {
         return;
 	}
 
+	clock();
 	clear_screen();
 	draw_border();
 	display_hud();
@@ -126,11 +139,11 @@ void process() {
 		srand(now);
 
 		sprite_turn_to(ball, 0.4, 0.0);
-		int angle = rand() % 180;
+		int angle = rand() % 45;
 		sprite_turn(ball, angle);
-//		count_down();
+		count_down();
 		new_game = false;
-//		show_screen();
+		show_screen();
 
 	}
 
@@ -151,6 +164,7 @@ void process() {
 	if (debug_on) {
 		debug_hud();
 	}
+
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
 	int paddle_x = round(sprite_x(player_paddle));
