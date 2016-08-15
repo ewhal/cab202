@@ -118,6 +118,16 @@ void show_help() {
 
 }
 
+void show_gameover() {
+	int w = screen_width() / 2;
+	int h = (screen_height() - 3) / 2;
+	draw_string(w - 9, h, "Game over");
+	draw_string(w - 9, h + 1, "Press any key to exit");
+
+	show_screen();
+
+}
+
 void process() {
 	int w = screen_width(), pw = PADDLE_WIDTH;
 	int h = screen_height(), ph = PADDLE_HEIGHT;
@@ -163,6 +173,9 @@ void process() {
 		if (level < 4) {
 			level++;
 		}
+	}
+	if (key == 't') {
+		lives--;
 	}
 
 	if (debug_on) {
@@ -238,6 +251,8 @@ int main( void ) {
 		delay_count++;
 		timer_pause(DELAY);
 	}
+	show_gameover();
+	wait_char();
 
 	cleanup();
 	return 0;
