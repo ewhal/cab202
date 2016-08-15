@@ -14,6 +14,7 @@ int score = 0;
 int level = 1;
 int seconds = 0;
 int minutes = 0;
+int delay_count = 0;
 
 bool game_over = false;
 bool update_screen = true;
@@ -81,12 +82,16 @@ void debug_hud() {
 }
 
 void clock() {
-	seconds++;
-	if (seconds == 60) {
-		seconds = 0;
-		minutes++;
+	if (delay_count == 100) {
+		seconds++;
+		delay_count = 0;
+		if (seconds == 60) {
+			seconds = 0;
+			minutes++;
+		}
+		return;
+
 	}
-	return;
 }
 void count_down() {
 	int w = screen_width() / 2;
@@ -234,6 +239,7 @@ int main( void ) {
 		if (update_screen) {
 			show_screen();
 		}
+		delay_count++;
 		timer_pause(DELAY);
 	}
 
