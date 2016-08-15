@@ -74,8 +74,8 @@ void display_hud() {
 
 void debug_hud() {
 	int width = screen_width() / 4;
-	draw_formatted(2, 2, "ball (%d, %d)", sprite_x(ball), sprite_y(ball));
-	draw_formatted(width, 2, "paddle (%d, %d)", sprite_x(player_paddle), sprite_y(player_paddle));
+	draw_formatted(2, 2, "ball (%d, %d)", round(sprite_x(ball)), round(sprite_y(ball)));
+	draw_formatted(width, 2, "paddle (%d, %d)", round(sprite_x(player_paddle)), round(sprite_y(player_paddle)));
 	show_screen();
 
 
@@ -89,9 +89,8 @@ void clock() {
 			seconds = 0;
 			minutes++;
 		}
-		return;
-
 	}
+	return;
 }
 void count_down() {
 	int w = screen_width() / 2;
@@ -233,9 +232,6 @@ int main( void ) {
 
 	while (!game_over) {
 		process();
-		if (help_hud) {
-			help_hud;
-		}
 		if (update_screen) {
 			show_screen();
 		}
