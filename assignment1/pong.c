@@ -34,11 +34,11 @@ static char * paddle_image =
 static char * ball_image = "O";
 
 static char * singularity_image =
-	" \\ | \/ "
-	"  \\|\/  "
+	" \\ | / "
+	"  \\|/  "
 	"--   --"
-	"  \/|\\  "
-	" \/ | \\ ";
+	"  /|\\  "
+	" / | \\ ";
 
 sprite_id player_paddle;
 sprite_id computer_paddle;
@@ -101,8 +101,21 @@ void clock() {
 void count_down() {
 	int w = screen_width() / 2;
 	int h = screen_height() / 2;
+	/*
+	//top
+	draw_line(0, 0, screen_width()/2-1, 0, '*');
+
+	// bottom
+	draw_line(0, screen_height()/2-1, screen_width()/2-1, screen_height()/2-1, '*');
+
+	// left
+	draw_line(0, 0, 0, screen_height()/2-1, '*');
+
+	// right
+	draw_line(screen_width()/2-1, 0, screen_width()/2-1, screen_height()/2-1, '*');
+*/
 	for (int i = 3; i > 0; i--) {
-		draw_formatted(w, h, "Count Down: %d", i);
+		draw_formatted(w, h, "%d", i);
 		show_screen();
 		timer_pause(300);
 	}
@@ -147,6 +160,10 @@ void process() {
 		wait_char();
 		help_hud = false;
         return;
+	}
+	if (key == 'q') {
+		game_over = true;
+		lives = 0;
 	}
 
 	// increment the timer
@@ -214,7 +231,14 @@ void process() {
 		}
 
 		if (y > 4 && y < h - ph - 1 ) {
-			sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) / 2) );
+			if (ball_y > h - ph - 1) {
+				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, h - ph - 1);
+			} else if (ball_y  <= ph - 1) {
+				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, 4);
+			} else {
+
+				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) / 2) );
+			}
 		}
 
 		sprite_draw(computer_paddle);
