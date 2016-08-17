@@ -253,6 +253,10 @@ void process() {
 	}
 
 	if (level == 4) {
+		for (int i = 0; i <=  screen_width() / 2 - 5; i++ ) {
+			draw_char((screen_width()/ 4) + i, screen_height()/2 - 5, '=');
+			draw_char((screen_width()/ 4) + i, screen_height()/2 + 5 , '=');
+		}
 
 	}
 
