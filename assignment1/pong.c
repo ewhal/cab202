@@ -23,7 +23,7 @@ bool new_game = true;
 bool debug_on = false;
 
 
-static char * paddle_image = 
+static char * paddle_image =
 	"|"
 	"|"
 	"|"
@@ -43,7 +43,7 @@ void setup() {
 		PADDLE_HEIGHT = (screen_width() - 7 -1) / 2;
 	}
 	player_paddle = sprite_create(screen_width() - 2 - 1 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
-	computer_paddle =  sprite_create( 2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT )/ 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	computer_paddle = sprite_create(2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 }
 
@@ -55,7 +55,7 @@ void draw_border() {
 	// bottom
 	draw_line(0, screen_height()-1, screen_width()-1, screen_height()-1, '*');
 
-	// left 
+	// left
 	draw_line(0, 0, 0, screen_height()-1, '*');
 	// right
 	draw_line(screen_width()-1, 0, screen_width()-1, screen_height()-1, '*');
@@ -161,6 +161,7 @@ void process() {
 
 	}
 
+
 	if (key == 'w' && y > 4) {
 		sprite_move(player_paddle, 0, -1);
 	}
@@ -189,6 +190,22 @@ void process() {
 
 	double dx = sprite_dx(ball);
 	double dy = sprite_dy(ball);
+
+	if (level > 1) {
+		int computer_paddle_x = round(sprite_x(computer_paddle));
+		int computer_paddle_y = round(sprite_y(computer_paddle));
+		if (ball_x == computer_paddle_x && ball_y <= computer_paddle_y + (sprite_height(computer_paddle)) && ball_y >= computer_paddle_y) {
+			dx = -dx;
+			dir_changed = true;
+
+		}
+
+		if (y > 4 && y < h - ph - 1) {
+			sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) /2) );
+		}
+
+		sprite_draw(computer_paddle);
+	}
 
 	if (ball_y == 3 || ball_y == h - 1) {
 		dy = -dy;
@@ -228,11 +245,6 @@ void process() {
 
 	}
 
-	if (level > 1) {
-
-		sprite_move_to(computer_paddle, 2, ball_y);
-		sprite_draw(computer_paddle);
-	}
 	sprite_draw(player_paddle);
 	sprite_draw(ball);
 	sprite_step(ball);
