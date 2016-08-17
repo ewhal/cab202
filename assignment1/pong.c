@@ -131,6 +131,7 @@ void show_help() {
 	draw_string(w - 9, h + 4, "jk - movement");
 	draw_string(w - 9, h + 5, "l - next level");
 	draw_string(w - 9, h + 6, "h - help menu");
+	draw_string(w - 9, h + 6, "q - quit");
 	draw_string(w - 9, h + 7, "Press any key");
 
 	show_screen();
@@ -194,11 +195,11 @@ void process() {
 	}
 
 
-	if (key == 'w' && y > 4) {
+	if (key == 'k' && y > 4) {
 		sprite_move(player_paddle, 0, -1);
 	}
 
-	if (key == 's' && y < h - ph - 1) {
+	if (key == 'j' && y < h - ph - 1) {
 		sprite_move(player_paddle, 0, +1);
 	}
 
