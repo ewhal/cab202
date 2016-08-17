@@ -84,7 +84,7 @@ void display_hud() {
 	draw_formatted(2, 2, " lives: %d", lives);
 	draw_formatted(width, 2, " score: %d", score);
 	draw_formatted(width * 2, 2, " level: %d", level);
-	draw_formatted(width * 3, 2, " Time: %d:%d", minutes, seconds);
+	draw_formatted(width * 3, 2, " Time: %2d:%2d", minutes, seconds);
 	show_screen();
 }
 
@@ -124,7 +124,7 @@ void count_down() {
 
 void show_help() {
 	int w = screen_width() / 2;
-	int h = (screen_height() - 8) / 2;
+	int h = (screen_height() - 9) / 2;
 	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
 	draw_string(w - 9, h + 1, "Eliot Whalan");
 	draw_string(w - 9, h + 2, "n9446800");
@@ -132,8 +132,8 @@ void show_help() {
 	draw_string(w - 9, h + 4, "jk - movement");
 	draw_string(w - 9, h + 5, "l - next level");
 	draw_string(w - 9, h + 6, "h - help menu");
-	draw_string(w - 9, h + 6, "q - quit");
-	draw_string(w - 9, h + 7, "Press any key");
+	draw_string(w - 9, h + 7, "q - quit");
+	draw_string(w - 9, h + 8, "Press any key");
 
 	show_screen();
 
@@ -221,6 +221,9 @@ void process() {
 	if (key == 'l') {
 		if (level < 4) {
 			level++;
+			new_game = true;
+			return;
+
 		}
 	}
 
@@ -275,8 +278,7 @@ void process() {
 			draw_char((screen_width()/ 4) + i, screen_height()/2 + 5 , '=');
 		}
 
-		if ((ball_y == screen_height() / 2 - 5 || ball_y == screen_height() / 2 + 5 ) &&  ball_x == screen_width() / 4 - 5 && ball_x == screen_width() /4 + 20 ) {
-			
+		if ((ball_y == screen_height() / 2 - 5 || ball_y == screen_height() / 2 + 5 )) {
 			dy = -dy;
 			dir_changed = true;
 		}
