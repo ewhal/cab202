@@ -57,15 +57,19 @@ void setup() {
 void draw_border() {
 	// top
 	draw_line(0, 0, screen_width()-1, 0, '*');
+
 	// top_bottom
 	draw_line(0, 3, screen_width()-1, 3, '*');
+
 	// bottom
 	draw_line(0, screen_height()-1, screen_width()-1, screen_height()-1, '*');
 
 	// left
 	draw_line(0, 0, 0, screen_height()-1, '*');
+
 	// right
 	draw_line(screen_width()-1, 0, screen_width()-1, screen_height()-1, '*');
+
 	show_screen();
 
 }
@@ -128,6 +132,7 @@ void show_help() {
 void show_gameover() {
 	int w = screen_width() / 2;
 	int h = (screen_height() - 3) / 2;
+
 	draw_string(w - 9, h, "Game over");
 	draw_string(w - 9, h + 1, "Press any key to exit");
 
@@ -149,18 +154,26 @@ void process() {
         return;
 	}
 
+	// increment the timer
 	clock();
+	// clear_screen 
+	//
 	clear_screen();
+
+	// draw_borders
 	draw_border();
+
+	// display_hud
 	display_hud();
 
 
 	if (new_game) {
 		int now = get_current_time();
+		int angle = rand() % 45;
+
 		srand(now);
 
 		sprite_turn_to(ball, 0.4, 0.0);
-		int angle = rand() % 45;
 		sprite_turn(ball, angle);
 		count_down();
 		new_game = false;
