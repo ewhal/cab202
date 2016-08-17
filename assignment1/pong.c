@@ -20,6 +20,7 @@ bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
 bool new_game = true;
+int rails[20];
 
 
 static char * paddle_image =
@@ -143,9 +144,25 @@ void show_gameover() {
 	int h = (screen_height() - 3) / 2;
 
 	draw_string(w - 9, h, "Game over");
-	draw_string(w - 9, h + 1, "Press any key to exit");
+	draw_string(w - 9, h + 1, "Play again (y/n): ");
 
 	show_screen();
+	char key = wait_char();
+	if ( key == 'y') {
+
+		game_over = false;
+		new_game = true;
+		score = 0;
+		minutes = 0;
+		seconds = 0;
+		level = 1;
+		lives = 10;
+	} else {
+		game_over = true;
+
+	}
+	return;
+
 
 }
 
@@ -163,8 +180,7 @@ void process() {
         return;
 	}
 	if (key == 'q') {
-		game_over = true;
-		lives = 0;
+		show_gameover();
 	}
 
 	// increment the timer
@@ -255,7 +271,14 @@ void process() {
 	if (level == 4) {
 		for (int i = 0; i <=  screen_width() / 2 - 5; i++ ) {
 			draw_char((screen_width()/ 4) + i, screen_height()/2 - 5, '=');
+			rails[i] = (screen_width()/4) + i;
 			draw_char((screen_width()/ 4) + i, screen_height()/2 + 5 , '=');
+		}
+
+		if ((ball_y == screen_height() / 2 - 5 || ball_y == screen_height() / 2 + 5 ) &&  ball_x == screen_width() / 4 - 5 && ball_x == screen_width() /4 + 20 ) {
+			
+			dy = -dy;
+			dir_changed = true;
 		}
 
 	}
@@ -292,9 +315,6 @@ void process() {
 	if (lives == 0) {
 		clear_screen();
 		show_gameover();
-		wait_char();
-		game_over = true;
-
 
 	}
 
@@ -321,7 +341,6 @@ int main( void ) {
 		delay_count++;
 		timer_pause(DELAY);
 	}
-	show_gameover();
 
 	cleanup();
 	return 0;
