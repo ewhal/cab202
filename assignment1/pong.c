@@ -170,7 +170,6 @@ void process() {
 	// increment the timer
 	clock();
 	// clear_screen
-	//
 	clear_screen();
 
 	// draw_borders
@@ -246,7 +245,10 @@ void process() {
 	}
 
 	if (level == 3) {
-		sprite_draw(singularity);
+		if (seconds >= 5 || minutes > 0) {
+
+			sprite_draw(singularity);
+		}
 
 	}
 
@@ -315,6 +317,7 @@ int main( void ) {
 		delay_count++;
 		timer_pause(DELAY);
 	}
+	show_gameover();
 
 	cleanup();
 	return 0;
