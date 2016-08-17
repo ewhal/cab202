@@ -20,7 +20,6 @@ bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
 bool new_game = true;
-bool debug_on = false;
 
 
 static char * paddle_image =
@@ -34,24 +33,29 @@ static char * paddle_image =
 
 static char * ball_image = "O";
 
-static char * singularity_image = 
-	" \ | /"
-	"  \|/ "
+static char * singularity_image =
+	" \\ | \/ "
+	"  \\|\/  "
 	"--   --"
-	"  /|\ "
-	" / | \";
+	"  \/|\\  "
+	" \/ | \\ ";
 
 sprite_id player_paddle;
 sprite_id computer_paddle;
 sprite_id ball;
+sprite_id singularity;
 
 void setup() {
 	if (screen_height() < 21) {
 		PADDLE_HEIGHT = (screen_width() - 7 -1) / 2;
 	}
-	player_paddle = sprite_create(screen_width() - 2 - 1 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+	player_paddle = sprite_create(screen_width() - 2 - 1 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2, PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+
 	computer_paddle = sprite_create(2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
+
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
+
+	singularity = sprite_create((screen_width() / 2), (screen_height() / 2), 7, 5, singularity_image);
 }
 
 void draw_border() {
@@ -81,15 +85,6 @@ void display_hud() {
 	draw_formatted(width * 2, 2, " level: %d", level);
 	draw_formatted(width * 3, 2, " Time: %d:%d", minutes, seconds);
 	show_screen();
-}
-
-void debug_hud() {
-	int width = screen_width() / 4;
-	draw_formatted(2, 2, "ball (%d, %d)", round(sprite_x(ball)), round(sprite_y(ball)));
-	draw_formatted(width, 2, "paddle (%d, %d)", round(sprite_x(player_paddle)), round(sprite_y(player_paddle)));
-	show_screen();
-
-
 }
 
 void clock() {
@@ -156,7 +151,7 @@ void process() {
 
 	// increment the timer
 	clock();
-	// clear_screen 
+	// clear_screen
 	//
 	clear_screen();
 
@@ -195,13 +190,11 @@ void process() {
 			level++;
 		}
 	}
+
 	if (key == 't') {
 		lives--;
 	}
 
-	if (debug_on) {
-		debug_hud();
-	}
 
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
@@ -228,6 +221,7 @@ void process() {
 	}
 
 	if (level == 3) {
+		sprite_draw(singularity);
 
 	}
 
