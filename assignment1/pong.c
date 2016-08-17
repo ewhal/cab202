@@ -222,11 +222,13 @@ void process() {
 		if (level < 4) {
 			level++;
 			new_game = true;
+			setup();
 			return;
 
 		}
 	}
 
+	// for easy debugging
 	if (key == 't') {
 		lives--;
 	}
