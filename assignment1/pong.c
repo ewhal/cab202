@@ -220,15 +220,20 @@ void process() {
 	}
 
 	if (lives == 0) {
-		game_over = true;
-		draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
+		clear_screen();
+		show_gameover();
 		wait_char();
+		game_over = true;
 
 
 	}
 
+	if (level > 1) {
+
+		sprite_move_to(computer_paddle, 2, ball_y);
+		sprite_draw(computer_paddle);
+	}
 	sprite_draw(player_paddle);
-//	sprite_draw(computer_paddle);
 	sprite_draw(ball);
 	sprite_step(ball);
 
@@ -251,8 +256,6 @@ int main( void ) {
 		delay_count++;
 		timer_pause(DELAY);
 	}
-	show_gameover();
-	wait_char();
 
 	cleanup();
 	return 0;
