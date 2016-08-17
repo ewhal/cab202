@@ -34,6 +34,13 @@ static char * paddle_image =
 
 static char * ball_image = "O";
 
+static char * singularity_image = 
+	" \ | /"
+	"  \|/ "
+	"--   --"
+	"  /|\ "
+	" / | \";
+
 sprite_id player_paddle;
 sprite_id computer_paddle;
 sprite_id ball;
@@ -200,11 +207,19 @@ void process() {
 
 		}
 
-		if (y > 4 && y < h - ph - 1) {
-			sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) /2) );
+		if (y > 4 && y < h - ph - 1 ) {
+			sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) / 2) );
 		}
 
 		sprite_draw(computer_paddle);
+	}
+
+	if (level == 3) {
+
+	}
+
+	if (level == 4) {
+
 	}
 
 	if (ball_y == 3 || ball_y == h - 1) {
