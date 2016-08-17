@@ -55,7 +55,7 @@ void setup() {
 
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 
-	singularity = sprite_create((screen_width() / 2), (screen_height() / 2), 7, 5, singularity_image);
+	singularity = sprite_create((screen_width() / 2) - 7, (screen_height() / 2) - 5, 7, 5, singularity_image);
 }
 
 void draw_border() {
