@@ -58,7 +58,7 @@ void setup() {
 
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 
-	singularity = sprite_create((screen_width() / 2) - 7, (screen_height() / 2) - 5, 7, 5, singularity_image);
+	singularity = sprite_create((screen_width() / 2), (screen_height() / 2) - 5, 7, 5, singularity_image);
 	for (int i = 0; i <=  screen_width()/2; i++ ) {
 		top_rails[i] = (screen_width()/4) + i;
 		bottom_rails[i] = (screen_width()/4) + i;
@@ -284,13 +284,14 @@ void process() {
 		for (int i = 0; i <= 128; i++) {
 			if (top_rails[i] != 0 || bottom_rails[i] != 0) {
 
-				draw_char(top_rails[i], screen_height()/ 2 - 5, '=');
-				draw_char(bottom_rails[i], screen_height()/ 2 + 5, '=');
-				if (ball_y == screen_height() / 2 - 5 && ball_x == top_rails[i]) {
+				draw_char(top_rails[i], screen_height()/ 3, '=');
+				draw_char(bottom_rails[i], (screen_height()/ 3) * 2, '=');
+
+				if (ball_y == screen_height() / 3 && ball_x == top_rails[i]) {
 					top_rails[i] = 0;
 					dy = -dy;
 					dir_changed = true;
-				} else if (ball_y == screen_height() / 2 + 5 && ball_x == bottom_rails[i] ) {
+				} else if (ball_y == screen_height() / 3 * 2 && ball_x == bottom_rails[i] ) {
 					bottom_rails[i] = 0;
 					dy = -dy;
 					dir_changed = true;
