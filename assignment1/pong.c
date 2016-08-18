@@ -20,7 +20,9 @@ bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
 bool new_game = true;
-int rails[20];
+bool debug = true;
+int top_rails[128];
+int bottom_rails[128];
 
 
 static char * paddle_image =
@@ -57,6 +59,12 @@ void setup() {
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 
 	singularity = sprite_create((screen_width() / 2) - 7, (screen_height() / 2) - 5, 7, 5, singularity_image);
+	for (int i = 0; i <=  screen_width()/2; i++ ) {
+		top_rails[i] = (screen_width()/4) + i;
+		bottom_rails[i] = (screen_width()/4) + i;
+	}
+
+
 }
 
 void draw_border() {
@@ -228,6 +236,11 @@ void process() {
 		}
 	}
 
+	if (key == 'g') {
+		debug = false;
+		return;
+	}
+
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
 	int paddle_x = round(sprite_x(player_paddle));
@@ -268,15 +281,23 @@ void process() {
 	}
 
 	if (level == 4) {
-		for (int i = 0; i <=  screen_width() / 2 - 5; i++ ) {
-			draw_char((screen_width()/ 4) + i, screen_height()/2 - 5, '=');
-			rails[i] = (screen_width()/4) + i;
-			draw_char((screen_width()/ 4) + i, screen_height()/2 + 5 , '=');
-		}
+		for (int i = 0; i <= 128; i++) {
+			if (top_rails[i] != 0 || bottom_rails[i] != 0) {
 
-		if ((ball_y == screen_height() / 2 - 5 || ball_y == screen_height() / 2 + 5 )) {
-			dy = -dy;
-			dir_changed = true;
+				draw_char(top_rails[i], screen_height()/ 2 - 5, '=');
+				draw_char(bottom_rails[i], screen_height()/ 2 + 5, '=');
+				if (ball_y == screen_height() / 2 - 5 && ball_x == top_rails[i]) {
+					top_rails[i] = 0;
+					dy = -dy;
+					dir_changed = true;
+				} else if (ball_y == screen_height() / 2 + 5 && ball_x == bottom_rails[i] ) {
+					bottom_rails[i] = 0;
+					dy = -dy;
+					dir_changed = true;
+
+				}
+			}
+
 		}
 
 	}
@@ -305,10 +326,6 @@ void process() {
 
 	}
 
-	if (dir_changed) {
-		sprite_back(ball);
-		sprite_turn_to(ball, dx, dy);
-	}
 
 	if (lives == 0) {
 		clear_screen();
@@ -318,6 +335,34 @@ void process() {
 
 	sprite_draw(player_paddle);
 	sprite_draw(ball);
+	if (debug = true) {
+		if (key == 'w') {
+			dy = -dy;
+			dir_changed = true;
+		}
+
+		if (key == 's') {
+			dx = -dx;
+			dir_changed = true;
+		}
+		if (key == 'a') {
+			dx = -dx;
+			dir_changed = true;
+		}
+
+		if (key == 'd') {
+			dy = -dy;
+			dir_changed = true;
+		}
+
+
+	}
+	if (dir_changed) {
+		sprite_back(ball);
+		sprite_turn_to(ball, dx, dy);
+	}
+
+
 	sprite_step(ball);
 
 
