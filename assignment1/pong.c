@@ -72,7 +72,7 @@ void draw_border() {
 	draw_line(0, 0, screen_width()-1, 0, '*');
 
 	// top_bottom
-	draw_line(0, 3, screen_width()-1, 3, '*');
+	draw_line(0, 2, screen_width()-1, 2, '*');
 
 	// bottom
 	draw_line(0, screen_height()-1, screen_width()-1, screen_height()-1, '*');
@@ -89,10 +89,10 @@ void draw_border() {
 
 void display_hud() {
 	int width = screen_width() / 4;
-	draw_formatted(2, 2, " lives: %d", lives);
-	draw_formatted(width, 2, " score: %d", score);
-	draw_formatted(width * 2, 2, " level: %d", level);
-	draw_formatted(width * 3, 2, " Time: %2d:%2d", minutes, seconds);
+	draw_formatted(2, 1, " lives: %d", lives);
+	draw_formatted(width, 1, "* score: %d", score);
+	draw_formatted(width * 2, 1, "* level: %d", level);
+	draw_formatted(width * 3, 1, "* Time: %2d:%2d", minutes, seconds);
 	show_screen();
 }
 
@@ -218,7 +218,7 @@ void process() {
 	}
 
 
-	if (key == 'k' && y > 4) {
+	if (key == 'k' && y > 3) {
 		sprite_move(player_paddle, 0, -1);
 	}
 
@@ -258,11 +258,11 @@ void process() {
 
 		}
 
-		if (y > 4 && y < h - ph - 1 ) {
+		if (y > 3 && y < h - ph - 1 ) {
 			if (ball_y > h - ph - 1) {
 				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, h - ph - 1);
 			} else if (ball_y  <= ph - 1) {
-				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, 4);
+				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, 3);
 			} else {
 
 				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) / 2) );
