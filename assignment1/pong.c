@@ -209,7 +209,7 @@ void process() {
 
 		srand(now);
 
-		sprite_turn_to(ball, 0.4, 0.0);
+		sprite_turn_to(ball, 0.3, 0.0);
 		sprite_turn(ball, angle);
 		count_down();
 		new_game = false;
