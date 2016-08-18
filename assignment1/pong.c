@@ -174,10 +174,6 @@ void show_gameover() {
 
 }
 
-void level3() {
-
-}
-
 void process() {
 	int w = screen_width(), pw = PADDLE_WIDTH;
 	int h = screen_height(), ph = PADDLE_HEIGHT;
