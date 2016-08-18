@@ -334,34 +334,13 @@ void process() {
 
 	}
 
-	sprite_draw(player_paddle);
-	sprite_draw(ball);
-	if (debug = true) {
-		if (key == 'w') {
-			dy = -dy;
-			dir_changed = true;
-		}
-
-		if (key == 's') {
-			dx = -dx;
-			dir_changed = true;
-		}
-		if (key == 'a') {
-			dx = -dx;
-			dir_changed = true;
-		}
-
-		if (key == 'd') {
-			dy = -dy;
-			dir_changed = true;
-		}
-
-
-	}
 	if (dir_changed) {
 		sprite_back(ball);
 		sprite_turn_to(ball, dx, dy);
 	}
+
+	sprite_draw(player_paddle);
+	sprite_draw(ball);
 
 
 	sprite_step(ball);
