@@ -228,12 +228,6 @@ void process() {
 		}
 	}
 
-	// for easy debugging
-	if (key == 't') {
-		lives--;
-	}
-
-
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
 	int paddle_x = round(sprite_x(player_paddle));
