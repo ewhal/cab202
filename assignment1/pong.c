@@ -174,56 +174,33 @@ void show_gameover() {
 
 }
 
+void level3() {
+
+}
+
 void process() {
 	int w = screen_width(), pw = PADDLE_WIDTH;
 	int h = screen_height(), ph = PADDLE_HEIGHT;
 	int y = round(sprite_y(player_paddle));
 	char key = get_char();
 	bool dir_changed = false;
+	int ball_x = round(sprite_x(ball));
+	int ball_y = round(sprite_y(ball));
+	int paddle_x = round(sprite_x(player_paddle));
+	int paddle_y = round(sprite_y(player_paddle));
 
-	if (key == 'h' || help_hud == true) {
-		show_help();
-		wait_char();
-		help_hud = false;
+	double dx = sprite_dx(ball);
+	double dy = sprite_dy(ball);
+
+
+	if (key == 'h') {
+		help_hud = true;
         return;
 	}
+
 	if (key == 'q') {
 		show_gameover();
-	}
-
-	// increment the timer
-	clock();
-	// clear_screen
-	clear_screen();
-
-	// draw_borders
-	draw_border();
-
-	// display_hud
-	display_hud();
-
-
-	if (new_game) {
-		int now = get_current_time();
-		int angle = rand() % 45;
-
-		srand(now);
-
-		sprite_turn_to(ball, 0.3, 0.0);
-		sprite_turn(ball, angle);
-		count_down();
-		new_game = false;
-		show_screen();
-
-	}
-
-
-	if (key == 'k' && y > 3) {
-		sprite_move(player_paddle, 0, -1);
-	}
-
-	if (key == 'j' && y < h - ph - 1) {
-		sprite_move(player_paddle, 0, +1);
+		return;
 	}
 
 	if (key == 'l') {
@@ -236,18 +213,14 @@ void process() {
 		}
 	}
 
-	if (key == 'g') {
-		debug = false;
-		return;
+	if (key == 'k' && y > 3) {
+		sprite_move(player_paddle, 0, -1);
 	}
 
-	int ball_x = round(sprite_x(ball));
-	int ball_y = round(sprite_y(ball));
-	int paddle_x = round(sprite_x(player_paddle));
-	int paddle_y = round(sprite_y(player_paddle));
+	if (key == 'j' && y < h - ph - 1) {
+		sprite_move(player_paddle, 0, +1);
+	}
 
-	double dx = sprite_dx(ball);
-	double dy = sprite_dy(ball);
 
 	if (level > 1) {
 		int computer_paddle_x = round(sprite_x(computer_paddle));
@@ -328,12 +301,6 @@ void process() {
 	}
 
 
-	if (lives == 0) {
-		clear_screen();
-		show_gameover();
-
-	}
-
 	if (dir_changed) {
 		sprite_back(ball);
 		sprite_turn_to(ball, dx, dy);
@@ -357,12 +324,60 @@ int main( void ) {
 	setup();
 
 	while (!game_over) {
+		// increment the timer
+		clock();
+		// clear_screen
+		clear_screen();
+
+		// draw_borders
+		draw_border();
+
+		// display_hud
+		display_hud();
+
+		if (help_hud) {
+			show_help();
+			wait_char();
+			help_hud = false;
+
+		}
+		if (new_game) {
+			int now = get_current_time();
+			int angle = rand() % 45;
+
+			srand(now);
+
+			sprite_turn_to(ball, 0.3, 0.0);
+			sprite_turn(ball, angle);
+			// clear_screen
+			clear_screen();
+
+			// draw_borders
+			draw_border();
+
+			// display_hud
+			display_hud();
+			count_down();
+			new_game = false;
+			show_screen();
+
+		}
+
 		process();
+
 		if (update_screen) {
 			show_screen();
 		}
+
 		delay_count++;
 		timer_pause(DELAY);
+
+		if (lives == 0) {
+			clear_screen();
+			show_gameover();
+
+		}
+
 	}
 
 	cleanup();
