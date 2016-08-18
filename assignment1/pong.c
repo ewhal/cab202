@@ -20,7 +20,6 @@ bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
 bool new_game = true;
-bool debug = true;
 int top_rails[128];
 int bottom_rails[128];
 
@@ -59,6 +58,10 @@ void setup() {
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 
 	singularity = sprite_create((screen_width() / 2), (screen_height() / 2) - 5, 7, 5, singularity_image);
+
+
+}
+void setup_rails() {
 	for (int i = 0; i <=  screen_width()/2; i++ ) {
 		top_rails[i] = (screen_width()/4) + i;
 		bottom_rails[i] = (screen_width()/4) + i;
@@ -134,8 +137,8 @@ void show_help() {
 	int w = screen_width() / 2;
 	int h = (screen_height() - 9) / 2;
 	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
-	draw_string(w - 9, h + 1, "Eliot Whalan");
-	draw_string(w - 9, h + 2, "n9446800");
+	draw_string(w - 9, h + 1, "");
+	draw_string(w - 9, h + 2, "");
 	draw_string(w - 9, h + 3, "Controls");
 	draw_string(w - 9, h + 4, "jk - movement");
 	draw_string(w - 9, h + 5, "l - next level");
@@ -221,6 +224,7 @@ void process() {
 	if (level > 1) {
 		int computer_paddle_x = round(sprite_x(computer_paddle));
 		int computer_paddle_y = round(sprite_y(computer_paddle));
+
 		if (ball_x == computer_paddle_x && ball_y <= computer_paddle_y + (sprite_height(computer_paddle)) && ball_y >= computer_paddle_y) {
 			dx = -dx;
 			dir_changed = true;
@@ -229,12 +233,12 @@ void process() {
 
 		if (y > 3 && y < h - ph - 1 ) {
 			if (ball_y > h - ph - 1) {
-				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, h - ph - 1);
+				sprite_move_to(computer_paddle, 2 + pw, h - ph - 1);
 			} else if (ball_y  <= ph - 1) {
-				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, 3);
+				sprite_move_to(computer_paddle, 2 + pw, 3);
 			} else {
 
-				sprite_move_to(computer_paddle, 2 + PADDLE_WIDTH, ball_y - (sprite_height(computer_paddle) / 2) );
+				sprite_move_to(computer_paddle, 2 + pw, ball_y - (sprite_height(computer_paddle) / 2) );
 			}
 		}
 
@@ -250,22 +254,28 @@ void process() {
 	}
 
 	if (level == 4) {
-		for (int i = 0; i <= 128; i++) {
-			if (top_rails[i] != 0 || bottom_rails[i] != 0) {
+		if (ball_y == screen_height() / 3 || (screen_height()/3 * 2)) {
+			for (int i = 0; i <= 128; i++) {
+				if (top_rails[i] != 0 || bottom_rails[i] != 0) {
 
-				draw_char(top_rails[i], screen_height()/ 3, '=');
-				draw_char(bottom_rails[i], (screen_height()/ 3) * 2, '=');
+					draw_char(top_rails[i], screen_height()/ 3, '=');
+					draw_char(bottom_rails[i], (screen_height()/ 3) * 2, '=');
 
-				if (ball_y == screen_height() / 3 && ball_x == top_rails[i]) {
-					top_rails[i] = 0;
-					dy = -dy;
-					dir_changed = true;
-				} else if (ball_y == screen_height() / 3 * 2 && ball_x == bottom_rails[i] ) {
-					bottom_rails[i] = 0;
-					dy = -dy;
-					dir_changed = true;
+					if (ball_y == screen_height() / 3 && ball_x == top_rails[i]) {
+						top_rails[i] = 0;
+						dy = -dy;
+						dir_changed = true;
+						break;
 
+					} else if (ball_y == screen_height() / 3 * 2 && ball_x == bottom_rails[i] ) {
+						bottom_rails[i] = 0;
+						dy = -dy;
+						dir_changed = true;
+						break;
+
+					}
 				}
+
 			}
 
 		}
@@ -318,6 +328,7 @@ int main( void ) {
 	setup_screen();
 
 	setup();
+	setup_rails();
 
 	while (!game_over) {
 		// increment the timer
