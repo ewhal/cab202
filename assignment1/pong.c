@@ -113,6 +113,7 @@ void clock() {
 void count_down() {
 	int w = screen_width() / 2;
 	int h = screen_height() / 2;
+	// todo draw border around count_down
 	/*
 	//top
 	draw_line(0, 0, screen_width()/2-1, 0, '*');
@@ -134,6 +135,7 @@ void count_down() {
 }
 
 void show_help() {
+	// todo draw border around help menu
 	int w = screen_width() / 2;
 	int h = (screen_height() - 9) / 2;
 	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
@@ -177,6 +179,10 @@ void show_gameover() {
 
 }
 
+// todo clean up
+// reduce unneeded code
+// break up into functions
+// fix up paddle physics
 void process() {
 	int w = screen_width(), pw = PADDLE_WIDTH;
 	int h = screen_height(), ph = PADDLE_HEIGHT;
@@ -248,6 +254,7 @@ void process() {
 	if (level == 3) {
 		if (seconds >= 5 || minutes > 0) {
 
+			// todo use gravity equation
 			if (ball_y == screen_height()/2 && ball_x == screen_width()/2 ) {
 
 				dy = -dy * 3;
@@ -260,6 +267,8 @@ void process() {
 	}
 
 	if (level == 4) {
+		// todo
+		// use sprites? clean the hell up
 		if (ball_y == screen_height() / 3 || (screen_height()/3 * 2)) {
 			for (int i = 0; i <= 128; i++) {
 				if (top_rails[i] != 0 || bottom_rails[i] != 0) {
@@ -327,6 +336,7 @@ void process() {
 
 }
 void cleanup() {
+	// todo add actual code
 
 }
 
