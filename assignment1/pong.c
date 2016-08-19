@@ -248,6 +248,12 @@ void process() {
 	if (level == 3) {
 		if (seconds >= 5 || minutes > 0) {
 
+			if (ball_y == screen_height()/2 && ball_x == screen_width()/2 ) {
+
+				dy = -dy * 3;
+				dx = -dx * 3;
+				dir_changed = true;
+			} 
 			sprite_draw(singularity);
 		}
 
@@ -282,7 +288,7 @@ void process() {
 
 	}
 
-	if (ball_y == 3 || ball_y == h - 1) {
+	if (ball_y == 2 || ball_y == h - 1) {
 		dy = -dy;
 		dir_changed = true;
 	}
