@@ -225,31 +225,12 @@ void process() {
 	if (key == 'j' && y < h - ph - 1) {
 		sprite_move(player_paddle, 0, +1);
 	}
-
-
-	if (level > 1) {
-		int computer_paddle_x = round(sprite_x(computer_paddle));
-		int computer_paddle_y = round(sprite_y(computer_paddle));
-
-		if (ball_x == computer_paddle_x && ball_y <= computer_paddle_y + (sprite_height(computer_paddle)) && ball_y >= computer_paddle_y) {
-			dx = -dx;
-			dir_changed = true;
-
-		}
-
-		if (y > 3 && y < h - ph - 1 ) {
-			if (ball_y > h - ph - 1) {
-				sprite_move_to(computer_paddle, 2 + pw, h - ph - 1);
-			} else if (ball_y  <= ph - 1) {
-				sprite_move_to(computer_paddle, 2 + pw, 3);
-			} else {
-
-				sprite_move_to(computer_paddle, 2 + pw, ball_y - (sprite_height(computer_paddle) / 2) );
-			}
-		}
-
-		sprite_draw(computer_paddle);
+	if (key == 't') {
+		lives--;
 	}
+
+
+
 
 	if (level == 3) {
 		if (seconds >= 5 || minutes > 0) {
@@ -275,23 +256,23 @@ void process() {
 
 					draw_char(top_rails[i], screen_height()/ 3, '=');
 					draw_char(bottom_rails[i], (screen_height()/ 3) * 2, '=');
-
-					if (ball_y == screen_height() / 3 && ball_x == top_rails[i]) {
-						top_rails[i] = 0;
-						dy = -dy;
-						dir_changed = true;
-						break;
-
-					} else if (ball_y == screen_height() / 3 * 2 && ball_x == bottom_rails[i] ) {
-						bottom_rails[i] = 0;
-						dy = -dy;
-						dir_changed = true;
-						break;
-
-					}
 				}
 
+				if (ball_y == screen_height() / 3 && ball_x == top_rails[i]) {
+					top_rails[i] = 0;
+					dy = -dy;
+					dir_changed = true;
+					break;
+
+				} else if (ball_y == screen_height() / 3 * 2 && ball_x == bottom_rails[i] ) {
+					bottom_rails[i] = 0;
+					dy = -dy;
+					dir_changed = true;
+					break;
+
+				}
 			}
+
 
 		}
 
@@ -321,11 +302,35 @@ void process() {
 
 	}
 
+	if (level > 1) {
+		int computer_paddle_x = round(sprite_x(computer_paddle));
+		int computer_paddle_y = round(sprite_y(computer_paddle));
+
+		if (ball_x == computer_paddle_x && ball_y <= computer_paddle_y + (sprite_height(computer_paddle)) && ball_y >= computer_paddle_y) {
+			dx = -dx;
+			dir_changed = true;
+
+		}
+
+		if (y > 3 && y < h - ph - 1 ) {
+			if (ball_y > h - ph - 1) {
+				sprite_move_to(computer_paddle, 2 + pw, h - ph - 1);
+			} else if (ball_y  <= ph - 1) {
+				sprite_move_to(computer_paddle, 2 + pw, 3);
+			} else {
+
+				sprite_move_to(computer_paddle, 2 + pw, ball_y - (sprite_height(computer_paddle) / 2) );
+			}
+		}
+
+		sprite_draw(computer_paddle);
+	}
 
 	if (dir_changed) {
 		sprite_back(ball);
 		sprite_turn_to(ball, dx, dy);
 	}
+
 
 	sprite_draw(player_paddle);
 	sprite_draw(ball);
