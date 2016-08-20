@@ -62,7 +62,7 @@ void setup() {
 
 }
 void setup_rails() {
-	for (int i = 0; i <=  screen_width()/2; i++ ) {
+	for (int i = 0; i <=  screen_width()/2 && i <= 127; i++ ) {
 		top_rails[i] = (screen_width()/4) + i;
 		bottom_rails[i] = (screen_width()/4) + i;
 	}
@@ -251,7 +251,7 @@ void process() {
 		// todo
 		// use sprites? clean the hell up
 		if (ball_y == screen_height() / 3 || (screen_height()/3 * 2)) {
-			for (int i = 0; i <= 128; i++) {
+			for (int i = 0; i <= 127; i++) {
 				if (top_rails[i] != 0 || bottom_rails[i] != 0) {
 
 					draw_char(top_rails[i], screen_height()/ 3, '=');
