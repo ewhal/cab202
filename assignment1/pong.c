@@ -170,6 +170,7 @@ void show_gameover() {
 		seconds = 0;
 		level = 1;
 		lives = 10;
+		help_hud = true;
 	} else {
 		game_over = true;
 
