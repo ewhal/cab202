@@ -12,9 +12,9 @@ int PADDLE_HEIGHT = 7;
 int lives = 10;
 int score = 0;
 int level = 1;
-int seconds = 0;
-int minutes = 0;
-int delay_count = 0;
+time_t seconds = 0;
+time_t minutes = 0;
+time_t delay_count = 0;
 
 bool game_over = false;
 bool update_screen = true;
@@ -95,7 +95,7 @@ void display_hud() {
 	draw_formatted(2, 1, " lives: %d", lives);
 	draw_formatted(width, 1, "* score: %d", score);
 	draw_formatted(width * 2, 1, "* level: %d", level);
-	draw_formatted(width * 3, 1, "* Time: %2d:%2d", minutes, seconds);
+	draw_formatted(width * 3, 1, "* Time: %02d:%02d", minutes, seconds);
 	show_screen();
 }
 
