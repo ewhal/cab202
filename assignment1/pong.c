@@ -241,6 +241,62 @@ void process() {
 
 				dy = -dy * 3;
 				dx = -dx * 3;
+
+				double x_diff = x_star - sprite_x(station);
+				double y_diff = y_star - sprite_y(station);
+				//  (ab) Use x_diff and y_diff together with the Theorem of Pythagoras to 
+				//      calculate the _square of the distance_ from the station to the star. 
+				//      Save this value in a double precision floating point variable, 
+				//		dist_squared. (_DO NOT_ take the square root in this step.)
+
+				double dist_squared = pow(x_diff, 2) + pow(y_diff, 2);
+				//  (ac) Guard against possible division by zero in later calculations. If
+				//      dist_squared is less than 1e-10, set it to 1e-10. In a "practical" 
+				//		setting the space station would have vaporised before this point 
+				//		could be reached. In this simulation, we will allow the station to 
+				//		fly past the star (very close).
+				if (dist_squared < 1e-10) {
+					dist_squared = 1e-10;
+				}
+				//  (ad) Compute the square root of dist_squared and store it in a double precision
+				//      floating point variable called dist. 
+
+				double dist = sqrt(dist_squared);
+				//  (ae) Get the current horizontal and vertical step sizes of the station 
+				//      and store them in double precision floating point variables called 
+				//      dx and dy.
+				double dx = sprite_dx(station);
+				double dy = sprite_dy(station);
+
+				//  (af) Calculate the magnitude of the acceleration due to the gravity of
+				//      the star. This is given by the formula a = GM/dist_squared, where G is the 
+				//      universal gravitational constant, M is the mass of the star, and
+				//      dist_squared is the square of the distance from the station to the star.
+				//      Due to the laws of physics in the simulation, you may use GM = 1.
+				//		In Assignment 1, you will have to experiment with different values
+				//		of this quantity to get the desired results.
+
+				double a = 1/dist_squared;
+				//  (ag) The acceleration must be split between the x and y direction and
+				//      added to the horizontal and vertical step sizes. To do this, add 
+				//      (a * x_diff / dist) to dx, and add (a * y_diff / dist) to dy.
+				dx = dx + (a * x_diff / dist);
+				dy = dy + (a * y_diff / dist);
+				//  (ah) Now check the speed of the station. It must never exceed the 
+				//      speed of light, which we define to be one screen unit per time 
+				//      step. Use the Theorem of Pythagoras to find the speed of
+				//      station, v, which is calculated from dx and dy.
+				//      (_DEFINITELY_ take the square root this time.)  
+
+				double v = sqrt(pow(dx, 2) + pow(dy, 2));
+				//  (ai) If the speed of the station is greater than 1, divide both dx
+				//      and dy by the speed. This will limit the a maximum velocity of
+				//		1 screen unit per time slice. Think of it as retro-rockets being
+				//		used to prevent the station from breaking up.
+				if (v > 1) {
+					dx = dx / v;
+					dy = dy / v;
+				}
 				dir_changed = true;
 			} 
 			sprite_draw(singularity);
