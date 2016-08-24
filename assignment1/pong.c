@@ -15,6 +15,7 @@ int level = 1;
 time_t seconds = 0;
 time_t minutes = 0;
 time_t delay_count = 0;
+time_t new_level_time = 0;
 
 bool game_over = false;
 bool update_screen = true;
@@ -57,7 +58,7 @@ void setup() {
 
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
 
-	singularity = sprite_create((screen_width() / 2), (screen_height() / 2) - 5, 7, 5, singularity_image);
+	singularity = sprite_create((screen_width() / 2) -1, (screen_height() / 2) - 1 , 7, 5, singularity_image);
 
 
 }
@@ -102,6 +103,7 @@ void display_hud() {
 void clock() {
 	if (delay_count == 100) {
 		seconds++;
+		new_level_time++;
 		delay_count = 0;
 		if (seconds == 60) {
 			seconds = 0;
@@ -179,6 +181,52 @@ void show_gameover() {
 
 
 }
+bool sprites_collided(sprite_id sprite_1, sprite_id sprite_2) {
+    int sprite_1_top = round(sprite_y(sprite_1)),
+        sprite_1_bottom = sprite_1_top + sprite_height(sprite_1) - 1,
+        sprite_1_left = round(sprite_x(sprite_1)),
+        sprite_1_right = sprite_1_left + sprite_width(sprite_1) - 1;
+
+    int sprite_2_top = round(sprite_y(sprite_2)),
+        sprite_2_bottom = sprite_2_top + sprite_height(sprite_2) - 1,
+        sprite_2_left = round(sprite_x(sprite_2)),
+        sprite_2_right = sprite_2_left + sprite_width(sprite_2) - 1;
+
+    return !(
+        sprite_1_bottom < sprite_2_top
+        || sprite_1_top > sprite_2_bottom
+        || sprite_1_right < sprite_2_left
+        || sprite_1_left > sprite_2_right
+        );
+}
+
+void singularity_process() {
+	double x_diff = screen_width()/2 - sprite_x(ball);
+	double y_diff = screen_height()/2- sprite_y(ball);
+
+	double dist_squared = pow(x_diff, 2) + pow(y_diff, 2);
+	dist_squared = 25;
+
+	if (dist_squared < 1e-10) {
+		dist_squared = 1e-10;
+	}
+	double dist = sqrt(dist_squared);
+	double dx = sprite_dx(ball);
+	double dy = sprite_dy(ball);
+
+	double a = 1/4;
+
+	dx = dx + (a * x_diff / dist);
+	dy = dy + (a * y_diff / dist);
+
+	double v = sqrt(pow(dx, 2) + pow(dy, 2));
+	if (v > 1) {
+		dx = dx / v;
+		dy = dy / v;
+	}
+	sprite_turn_to(ball, dx, dy);
+
+}
 
 // todo clean up
 // reduce unneeded code
@@ -213,10 +261,9 @@ void process() {
 		if (level < 4) {
 			level++;
 			new_game = true;
-			setup();
 			return;
 
-		}
+		;}
 	}
 
 	if (key == 'k' && y > 3) {
@@ -234,73 +281,15 @@ void process() {
 
 
 	if (level == 3) {
-		if (seconds >= 5 || minutes > 0) {
+		if (new_level_time >= 5) {
 
-			// todo use gravity equation
-			if (ball_y == screen_height()/2 && ball_x == screen_width()/2 ) {
+			if (sprites_collided(singularity, ball)) {
+				singularity_process();
 
-				dy = -dy * 3;
-				dx = -dx * 3;
-
-				double x_diff = x_star - sprite_x(station);
-				double y_diff = y_star - sprite_y(station);
-				//  (ab) Use x_diff and y_diff together with the Theorem of Pythagoras to 
-				//      calculate the _square of the distance_ from the station to the star. 
-				//      Save this value in a double precision floating point variable, 
-				//		dist_squared. (_DO NOT_ take the square root in this step.)
-
-				double dist_squared = pow(x_diff, 2) + pow(y_diff, 2);
-				//  (ac) Guard against possible division by zero in later calculations. If
-				//      dist_squared is less than 1e-10, set it to 1e-10. In a "practical" 
-				//		setting the space station would have vaporised before this point 
-				//		could be reached. In this simulation, we will allow the station to 
-				//		fly past the star (very close).
-				if (dist_squared < 1e-10) {
-					dist_squared = 1e-10;
-				}
-				//  (ad) Compute the square root of dist_squared and store it in a double precision
-				//      floating point variable called dist. 
-
-				double dist = sqrt(dist_squared);
-				//  (ae) Get the current horizontal and vertical step sizes of the station 
-				//      and store them in double precision floating point variables called 
-				//      dx and dy.
-				double dx = sprite_dx(station);
-				double dy = sprite_dy(station);
-
-				//  (af) Calculate the magnitude of the acceleration due to the gravity of
-				//      the star. This is given by the formula a = GM/dist_squared, where G is the 
-				//      universal gravitational constant, M is the mass of the star, and
-				//      dist_squared is the square of the distance from the station to the star.
-				//      Due to the laws of physics in the simulation, you may use GM = 1.
-				//		In Assignment 1, you will have to experiment with different values
-				//		of this quantity to get the desired results.
-
-				double a = 1/dist_squared;
-				//  (ag) The acceleration must be split between the x and y direction and
-				//      added to the horizontal and vertical step sizes. To do this, add 
-				//      (a * x_diff / dist) to dx, and add (a * y_diff / dist) to dy.
-				dx = dx + (a * x_diff / dist);
-				dy = dy + (a * y_diff / dist);
-				//  (ah) Now check the speed of the station. It must never exceed the 
-				//      speed of light, which we define to be one screen unit per time 
-				//      step. Use the Theorem of Pythagoras to find the speed of
-				//      station, v, which is calculated from dx and dy.
-				//      (_DEFINITELY_ take the square root this time.)  
-
-				double v = sqrt(pow(dx, 2) + pow(dy, 2));
-				//  (ai) If the speed of the station is greater than 1, divide both dx
-				//      and dy by the speed. This will limit the a maximum velocity of
-				//		1 screen unit per time slice. Think of it as retro-rockets being
-				//		used to prevent the station from breaking up.
-				if (v > 1) {
-					dx = dx / v;
-					dy = dy / v;
-				}
-				dir_changed = true;
-			} 
+			}
 			sprite_draw(singularity);
 		}
+
 
 	}
 
@@ -348,11 +337,12 @@ void process() {
 		dx = -dx;
 		lives = lives - 1;
 		new_game = true;
+		new_level_time = 0;
 		setup();
 		return;
 	}
 
-	if (ball_x == paddle_x && ball_y <= paddle_y + (sprite_height(player_paddle)) && ball_y >= paddle_y) {
+	if (sprites_collided(player_paddle, ball)) {
 		score++;
 		dx = -dx;
 		dir_changed = true;
@@ -360,10 +350,7 @@ void process() {
 	}
 
 	if (level > 1) {
-		int computer_paddle_x = round(sprite_x(computer_paddle));
-		int computer_paddle_y = round(sprite_y(computer_paddle));
-
-		if (ball_x == computer_paddle_x && ball_y <= computer_paddle_y + (sprite_height(computer_paddle)) && ball_y >= computer_paddle_y) {
+		if (sprites_collided(computer_paddle, ball)) {
 			dx = -dx;
 			dir_changed = true;
 
@@ -389,12 +376,12 @@ void process() {
 	}
 
 
-	sprite_draw(player_paddle);
-	sprite_draw(ball);
 
 
 	sprite_step(ball);
 
+	sprite_draw(player_paddle);
+	sprite_draw(ball);
 
 }
 void cleanup() {
@@ -427,8 +414,10 @@ int main( void ) {
 
 		}
 		if (new_game) {
+			setup();
 			int now = get_current_time();
 			int angle = rand() % 45;
+			new_level_time = 0;
 
 			srand(now);
 
