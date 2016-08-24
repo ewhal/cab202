@@ -120,20 +120,7 @@ void clock() {
 void count_down() {
 	int w = screen_width() / 2;
 	int h = screen_height() / 2;
-	// todo draw border around count_down
-	/*
-	//top
-	draw_line(0, 0, screen_width()/2-1, 0, '*');
 
-	// bottom
-	draw_line(0, screen_height()/2-1, screen_width()/2-1, screen_height()/2-1, '*');
-
-	// left
-	draw_line(0, 0, 0, screen_height()/2-1, '*');
-
-	// right
-	draw_line(screen_width()/2-1, 0, screen_width()/2-1, screen_height()/2-1, '*');
-*/
 	for (int i = 3; i > 0; i--) {
 		draw_formatted(w, h, "%d", i);
 		show_screen();
@@ -178,6 +165,7 @@ void show_gameover() {
 		level = 1;
 		lives = 10;
 		help_hud = true;
+		delay_count = 0;
 	} else {
 		game_over = true;
 
@@ -245,7 +233,7 @@ void singularity_process() {
 	}
 	double dist = sqrt(dist_squared);
 
-	double a = 1/4;
+	double a = 1/dist_squared;
 
 	dx = dx + (a * x_diff / dist);
 	dy = dy + (a * y_diff / dist);
@@ -288,10 +276,6 @@ void process_computer_paddle() {
 
 }
 
-// todo clean up
-// reduce unneeded code
-// break up into functions
-// fix up paddle physics
 void process() {
 	int w = screen_width(), pw = PADDLE_WIDTH;
 	int h = screen_height(), ph = PADDLE_HEIGHT;
