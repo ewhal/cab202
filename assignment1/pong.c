@@ -248,10 +248,9 @@ void singularity_process() {
 }
 
 void process_computer_paddle() {
-	int w = screen_width(), pw = PADDLE_WIDTH;
+	int pw = PADDLE_WIDTH;
 	int h = screen_height(), ph = PADDLE_HEIGHT;
 	int y = round(sprite_y(player_paddle));
-	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
 
 	if (sprites_collided(computer_paddle, ball)) {
@@ -277,13 +276,11 @@ void process_computer_paddle() {
 }
 
 void process() {
-	int w = screen_width(), pw = PADDLE_WIDTH;
+	int w = screen_width();
 	int h = screen_height(), ph = PADDLE_HEIGHT;
 	int y = round(sprite_y(player_paddle));
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
-	int paddle_x = round(sprite_x(player_paddle));
-	int paddle_y = round(sprite_y(player_paddle));
 
 	char key = get_char();
 
