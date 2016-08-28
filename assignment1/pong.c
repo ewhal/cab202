@@ -132,6 +132,8 @@ void show_help() {
 	// todo draw border around help menu
 	int w = screen_width() / 2;
 	int h = (screen_height() - 9) / 2;
+	// todo
+	// clean up?
 	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
 	draw_string(w - 9, h + 1, "");
 	draw_string(w - 9, h + 2, "");
@@ -193,6 +195,8 @@ bool sprites_collided(sprite_id sprite_1, sprite_id sprite_2) {
         );
 }
 
+// todo
+// use sprites?
 void rails_process() {
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
