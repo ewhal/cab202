@@ -21,8 +21,9 @@ bool game_over = false;
 bool update_screen = true;
 bool help_hud = true;
 bool new_game = true;
-int top_rails[128];
-int bottom_rails[128];
+sprite_id *top_rails;
+sprite_id *bottom_rails;
+int MAX_RAILS;
 
 double dx;
 double dy;
@@ -66,10 +67,20 @@ void setup() {
 
 
 }
+
+sprite_id setup_rail(int x, int y) {
+	sprite_id rail = sprite_create(x, y, 1, 1, "=");
+
+	return rail;
+}
 void setup_rails() {
-	for (int i = 0; i <=  screen_width()/2 && i <= 127; i++ ) {
-		top_rails[i] = (screen_width()/4) + i;
-		bottom_rails[i] = (screen_width()/4) + i;
+	MAX_RAILS = screen_width()/2;
+	top_rails = calloc(MAX_RAILS, sizeof(sprite_id));
+	bottom_rails = calloc(MAX_RAILS, sizeof(sprite_id));
+
+	for (int i = 0; i <=  MAX_RAILS; i++ ) {
+		top_rails[i] = setup_rail((screen_width()/4) + i, screen_height()/3);
+		bottom_rails[i] = setup_rail((screen_width()/4) + i, screen_height()/3 * 2);
 	}
 
 
@@ -200,26 +211,32 @@ bool sprites_collided(sprite_id sprite_1, sprite_id sprite_2) {
 void rails_process() {
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
-	for (int i = 0; i <= 127; i++) {
-		if (top_rails[i] != 0 || bottom_rails[i] != 0) {
+	for (int i = 0; i <= MAX_RAILS; i++) {
+		if (top_rails[i] != NULL) {
+			
+			sprite_draw(top_rails[i]);
+			if (sprites_collided(ball, top_rails[i])) {
+				top_rails[i] = NULL;
+				dy = -dy;
+				dir_changed = true;
+				break;
 
-			draw_char(top_rails[i], screen_height()/ 3, '=');
-			draw_char(bottom_rails[i], (screen_height()/ 3) * 2, '=');
-		}
-
-		if (ball_y == screen_height() / 3 && ball_x == top_rails[i]) {
-			top_rails[i] = 0;
-			dy = -dy;
-			dir_changed = true;
-			break;
-
-		} else if (ball_y == screen_height() / 3 * 2 && ball_x == bottom_rails[i] ) {
-			bottom_rails[i] = 0;
-			dy = -dy;
-			dir_changed = true;
-			break;
+			} 
 
 		}
+		if (bottom_rails[i] != NULL) {
+
+			sprite_draw(bottom_rails[i]);
+			if (sprites_collided(ball, bottom_rails[i])) {
+				bottom_rails[i] = NULL;
+				dy = -dy;
+				dir_changed = true;
+				break;
+
+			}
+
+		}
+
 	}
 	return;
 
