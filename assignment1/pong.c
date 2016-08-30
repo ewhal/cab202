@@ -209,8 +209,6 @@ bool sprites_collided(sprite_id sprite_1, sprite_id sprite_2) {
 // todo
 // use sprites?
 void rails_process() {
-	int ball_x = round(sprite_x(ball));
-	int ball_y = round(sprite_y(ball));
 	for (int i = 0; i <= MAX_RAILS; i++) {
 		if (top_rails[i] != NULL) {
 			
