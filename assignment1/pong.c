@@ -78,7 +78,7 @@ void setup_rails() {
 	top_rails = calloc(MAX_RAILS, sizeof(sprite_id));
 	bottom_rails = calloc(MAX_RAILS, sizeof(sprite_id));
 
-	for (int i = 0; i <=  MAX_RAILS; i++ ) {
+	for (int i = 0; i < MAX_RAILS; i++ ) {
 		top_rails[i] = setup_rail((screen_width()/4) + i, screen_height()/3);
 		bottom_rails[i] = setup_rail((screen_width()/4) + i, screen_height()/3 * 2);
 	}
@@ -146,8 +146,8 @@ void show_help() {
 	// todo
 	// clean up?
 	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
-	draw_string(w - 9, h + 1, "");
-	draw_string(w - 9, h + 2, "");
+	draw_string(w - 9, h + 1, "Eliot Whalan");
+	draw_string(w - 9, h + 2, "n944800");
 	draw_string(w - 9, h + 3, "Controls");
 	draw_string(w - 9, h + 4, "jk - movement");
 	draw_string(w - 9, h + 5, "l - next level");
@@ -383,18 +383,9 @@ void process() {
 
 
 	if (sprites_collided(player_paddle, ball)) {
-	/*	if () {
-
-		} else if () {
-
-		} else if () {
-
-		} else { */
 			score++;
 			dx = -dx;
 			dir_changed = true;
-//		}
-
 	}
 
 	if (ball_x == w - 1) {
