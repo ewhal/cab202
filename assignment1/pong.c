@@ -143,17 +143,12 @@ void show_help() {
 	// todo draw border around help menu
 	int w = screen_width() / 2;
 	int h = (screen_height() - 9) / 2;
-	// todo
-	// clean up?
-	draw_string(w - 9, h, "CAB202 Assignment 1 - Pong");
-	draw_string(w - 9, h + 1, "Eliot Whalan");
-	draw_string(w - 9, h + 2, "n944800");
-	draw_string(w - 9, h + 3, "Controls");
-	draw_string(w - 9, h + 4, "jk - movement");
-	draw_string(w - 9, h + 5, "l - next level");
-	draw_string(w - 9, h + 6, "h - help menu");
-	draw_string(w - 9, h + 7, "q - quit");
-	draw_string(w - 9, h + 8, "Press any key");
+    char *text[] = {"CAB202 Assignment 1 - Pong", "Eliot Whalan", "n9446800", 
+      "Controls", "jk - movement", "l - next level", "h - help menu", "q - quit", 
+      "Press any key to start"};
+    for (int i = 0; i <= 8; i++) {
+      draw_string(w-9, h+i, text[i]);
+    }
 
 	show_screen();
 
@@ -206,8 +201,6 @@ bool sprites_collided(sprite_id sprite_1, sprite_id sprite_2) {
         );
 }
 
-// todo
-// use sprites?
 void rails_process() {
 	for (int i = 0; i <= MAX_RAILS; i++) {
 		if (top_rails[i] != NULL) {
@@ -346,6 +339,7 @@ void process() {
 	case 2:
 		process_computer_paddle();
 		break;
+
 	case 3:
 		process_computer_paddle();
 		if (new_level_time >= 5) {
