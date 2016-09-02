@@ -54,7 +54,7 @@ sprite_id ball;
 sprite_id singularity;
 
 void setup() {
-	if (screen_height()/2 < 21) {
+	if (screen_height() < 21) {
 		PADDLE_HEIGHT = (screen_width() - 3 -1) / 2;
 	}
 	player_paddle = sprite_create(screen_width() - 2 - 1 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2, PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
@@ -318,6 +318,11 @@ void process() {
 			return;
 
 		}
+        if (level == 4) {
+          level = 1;
+          new_game = true;
+          return;
+        }
 		break;
 	case 'k':
 		if (y > 3) {
@@ -375,9 +380,23 @@ void process() {
 
 
 	if (sprites_collided(player_paddle, ball)) {
+        if (ball_y == y) {
+            dy = -dy;
+			dx = -dx;
+            dir_changed = true;
+			score++;
+
+        } else if (ball_y == y + sprite_height(player_paddle) - 1) {
+            dy = -dy;
+            dir_changed = true;
+			score++;
+			dx = -dx;
+
+        } else {
 			score++;
 			dx = -dx;
 			dir_changed = true;
+        }
 	}
 
 	if (ball_x == w - 1) {
