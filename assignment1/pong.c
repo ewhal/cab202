@@ -452,7 +452,7 @@ int main( void ) {
 		if (new_game) {
 			setup();
 			int now = get_current_time();
-			int angle = rand() % 45;
+            double angle = rand() % 90 - 45;
 			new_level_time = 0;
 
 			srand(now);
