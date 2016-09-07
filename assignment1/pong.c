@@ -58,11 +58,8 @@ void setup() {
 		PADDLE_HEIGHT = (screen_width() - 3 -1) / 2;
 	}
 	player_paddle = sprite_create(screen_width() - 2 - 1 - PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2, PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
-
 	computer_paddle = sprite_create(2 + PADDLE_WIDTH, (screen_height() - PADDLE_HEIGHT) / 2,PADDLE_WIDTH, PADDLE_HEIGHT, paddle_image);
-
 	ball = sprite_create(screen_width() / 2, screen_height() / 2, 1, 1, ball_image);
-
 	singularity = sprite_create((screen_width() / 2) -1, (screen_height() / 2) - 1 , PADDLE_HEIGHT, 5, singularity_image);
 
 
@@ -73,6 +70,7 @@ sprite_id setup_rail(int x, int y) {
 
 	return rail;
 }
+
 void setup_rails() {
 	MAX_RAILS = screen_width()/2;
 	top_rails = calloc(MAX_RAILS, sizeof(sprite_id));
@@ -102,7 +100,6 @@ void draw_border() {
 	// right
 	draw_line(screen_width()-1, 0, screen_width()-1, screen_height()-1, '*');
 
-	show_screen();
 
 }
 
@@ -126,7 +123,6 @@ void clock() {
 			minutes++;
 		}
 	}
-	return;
 }
 void count_down() {
 	int w = screen_width() / 2;
@@ -160,8 +156,8 @@ void show_gameover() {
 
 	draw_string(w - 9, h, "Game over");
 	draw_string(w - 9, h + 1, "Play again (y/n): ");
-
 	show_screen();
+
 	char key = wait_char();
 	if ( key == 'y') {
 
@@ -202,53 +198,66 @@ bool sprites_collided(sprite_id sprite_1, sprite_id sprite_2) {
 }
 
 void rails_process() {
-	for (int i = 0; i <= MAX_RAILS; i++) {
+	for (int i = 0; i < MAX_RAILS; i++) {
 		if (top_rails[i] != NULL) {
-			
 			sprite_draw(top_rails[i]);
 			if (sprites_collided(ball, top_rails[i])) {
+                sprite_destroy(top_rails[i]);
 				top_rails[i] = NULL;
-				top_rails[i+1] = NULL;
-				top_rails[i-1] = NULL;
+
+                if (i+1 <= MAX_RAILS) {
+
+                    sprite_destroy(top_rails[i+1]);
+                    top_rails[i+1] = NULL;
+                }
+                if (i-1 >= 0) {
+
+                    sprite_destroy(top_rails[i-1]);
+                    top_rails[i-1] = NULL;
+                }
 				dy = -dy;
 				dir_changed = true;
 				break;
 
 			} 
-
 		}
 		if (bottom_rails[i] != NULL) {
-
 			sprite_draw(bottom_rails[i]);
 			if (sprites_collided(ball, bottom_rails[i])) {
+                sprite_destroy(bottom_rails[i]);
 				bottom_rails[i] = NULL;
-				bottom_rails[i+1] = NULL;
-				bottom_rails[i-1] = NULL;
+                if (i+1 <= MAX_RAILS) {
+
+                    sprite_destroy(bottom_rails[i+1]);
+                    bottom_rails[i+1] = NULL;
+                }
+                if (i-1 >= 0) {
+
+                    sprite_destroy(bottom_rails[i-1]);
+                    bottom_rails[i-1] = NULL;
+                }
+
 				dy = -dy;
 				dir_changed = true;
 				break;
 
 			}
-
 		}
-
 	}
 	return;
-
 }
 
 void singularity_process() {
 	double x_diff = screen_width()/2 - sprite_x(ball);
 	double y_diff = screen_height()/2- sprite_y(ball);
-
 	double dist_squared = pow(x_diff, 2) + pow(y_diff, 2);
 	dist_squared = 25;
 
 	if (dist_squared < 1e-10) {
 		dist_squared = 1e-10;
 	}
-	double dist = sqrt(dist_squared);
 
+	double dist = sqrt(dist_squared);
 	double a = 1/dist_squared;
 
 	dx = dx + (a * x_diff / dist);
@@ -272,23 +281,18 @@ void process_computer_paddle() {
 	if (sprites_collided(computer_paddle, ball)) {
 		dx = -dx;
 		dir_changed = true;
-
 	}
-
 	if (y > 3 && y < h - ph - 1 ) {
 		if (ball_y > h - ph - 1) {
 			sprite_move_to(computer_paddle, 2 + pw, h - ph - 1);
 		} else if (ball_y  <= ph - 1) {
 			sprite_move_to(computer_paddle, 2 + pw, 3);
 		} else {
-
 			sprite_move_to(computer_paddle, 2 + pw, ball_y - (sprite_height(computer_paddle) / 2) );
 		}
 	}
 
 	sprite_draw(computer_paddle);
-	return;
-
 }
 
 void process() {
@@ -297,23 +301,18 @@ void process() {
 	int y = round(sprite_y(player_paddle));
 	int ball_x = round(sprite_x(ball));
 	int ball_y = round(sprite_y(ball));
-
 	char key = get_char();
 
 	dir_changed = false;
 	dx = sprite_dx(ball);
 	dy = sprite_dy(ball);
 
-
 	switch (key) {
 	case 'h':
-
 		help_hud = true;
-		break;
 		return;
 	case 'q':
 		show_gameover();
-		break;
 		return;
 	case 'l':
 		if (level < 4) {
@@ -330,16 +329,12 @@ void process() {
 		break;
 	case 'k':
 		if (y > 3) {
-
 			sprite_move(player_paddle, 0, -1);
 		}
 		break;
-
 	case 'j':
-
 		if (y < h - ph - 1) {
 			sprite_move(player_paddle, 0, +1);
-
 		}
 		break;
 	}
@@ -352,10 +347,8 @@ void process() {
 	case 3:
 		process_computer_paddle();
 		if (new_level_time >= 5) {
-
 			if (sprites_collided(singularity, ball)) {
 				singularity_process();
-
 			}
 			sprite_draw(singularity);
 		}
@@ -409,17 +402,12 @@ void process() {
 		return;
 	}
 
-
 	if (dir_changed) {
 		sprite_back(ball);
 		sprite_turn_to(ball, dx, dy);
 	}
 
-
-
-
 	sprite_step(ball);
-
 	sprite_draw(player_paddle);
 	sprite_draw(ball);
 
