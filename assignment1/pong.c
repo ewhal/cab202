@@ -208,6 +208,8 @@ void rails_process() {
 			sprite_draw(top_rails[i]);
 			if (sprites_collided(ball, top_rails[i])) {
 				top_rails[i] = NULL;
+				top_rails[i+1] = NULL;
+				top_rails[i-1] = NULL;
 				dy = -dy;
 				dir_changed = true;
 				break;
@@ -220,6 +222,8 @@ void rails_process() {
 			sprite_draw(bottom_rails[i]);
 			if (sprites_collided(ball, bottom_rails[i])) {
 				bottom_rails[i] = NULL;
+				bottom_rails[i+1] = NULL;
+				bottom_rails[i-1] = NULL;
 				dy = -dy;
 				dir_changed = true;
 				break;
