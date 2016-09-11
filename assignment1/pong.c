@@ -124,6 +124,7 @@ void clock() {
 		}
 	}
 }
+
 void count_down() {
 	int w = screen_width() / 2;
 	int h = screen_height() / 2;
@@ -136,7 +137,6 @@ void count_down() {
 }
 
 void show_help() {
-	// todo draw border around help menu
 	int w = screen_width() / 2;
 	int h = (screen_height() - 9) / 2;
     char *text[] = {"CAB202 Assignment 1 - Pong", "Eliot Whalan", "n9446800", 
@@ -476,9 +476,7 @@ int main( void ) {
 		if (lives == 0) {
 			clear_screen();
 			show_gameover();
-
 		}
-
 	}
 
 	cleanup();
