@@ -1,0 +1,405 @@
+   1               		.file	"sprite.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.section	.text.init_sprite,"ax",@progbits
+  11               	.global	init_sprite
+  13               	init_sprite:
+  14               	.LFB3:
+  15               		.file 1 "sprite.c"
+   1:sprite.c      **** /*
+   2:sprite.c      ****  *  CAB202 Teensy Library (cab202_teensy)
+   3:sprite.c      ****  *	sprite.c
+   4:sprite.c      ****  *
+   5:sprite.c      ****  *	B.Talbot, September 2015
+   6:sprite.c      ****  *	Queensland University of Technology
+   7:sprite.c      ****  */
+   8:sprite.c      **** #include <math.h>
+   9:sprite.c      **** #include "sprite.h"
+  10:sprite.c      **** #include "lcd.h"
+  11:sprite.c      **** #include "graphics.h"
+  12:sprite.c      **** 
+  13:sprite.c      **** void init_sprite(Sprite* sprite, float x, float y, unsigned char width, unsigned char height, unsig
+  16               		.loc 1 13 0
+  17               		.cfi_startproc
+  18               	.LVL0:
+  19 0000 AF92      		push r10
+  20               	.LCFI0:
+  21               		.cfi_def_cfa_offset 3
+  22               		.cfi_offset 10, -2
+  23 0002 BF92      		push r11
+  24               	.LCFI1:
+  25               		.cfi_def_cfa_offset 4
+  26               		.cfi_offset 11, -3
+  27 0004 CF92      		push r12
+  28               	.LCFI2:
+  29               		.cfi_def_cfa_offset 5
+  30               		.cfi_offset 12, -4
+  31 0006 EF92      		push r14
+  32               	.LCFI3:
+  33               		.cfi_def_cfa_offset 6
+  34               		.cfi_offset 14, -5
+  35 0008 0F93      		push r16
+  36               	.LCFI4:
+  37               		.cfi_def_cfa_offset 7
+  38               		.cfi_offset 16, -6
+  39 000a 1F93      		push r17
+  40               	.LCFI5:
+  41               		.cfi_def_cfa_offset 8
+  42               		.cfi_offset 17, -7
+  43               	/* prologue: function */
+  44               	/* frame size = 0 */
+  45               	/* stack size = 6 */
+  46               	.L__stack_usage = 6
+  47 000c FC01      		movw r30,r24
+  14:sprite.c      **** 	// Apply supplied values
+  15:sprite.c      **** 	sprite->x = x;
+  48               		.loc 1 15 0
+  49 000e 4083      		st Z,r20
+  50 0010 5183      		std Z+1,r21
+  51 0012 6283      		std Z+2,r22
+  52 0014 7383      		std Z+3,r23
+  16:sprite.c      **** 	sprite->y = y;
+  53               		.loc 1 16 0
+  54 0016 0483      		std Z+4,r16
+  55 0018 1583      		std Z+5,r17
+  56 001a 2683      		std Z+6,r18
+  57 001c 3783      		std Z+7,r19
+  17:sprite.c      **** 	sprite->width = width;
+  58               		.loc 1 17 0
+  59 001e E08A      		std Z+16,r14
+  18:sprite.c      **** 	sprite->height = height;
+  60               		.loc 1 18 0
+  61 0020 C18A      		std Z+17,r12
+  19:sprite.c      **** 	sprite->bitmap = bitmap;	// This is only a SHALLOW copy!!!
+  62               		.loc 1 19 0
+  63 0022 B48A      		std Z+20,r11
+  64 0024 A38A      		std Z+19,r10
+  20:sprite.c      **** 
+  21:sprite.c      **** 	// Enforce some default values for sanity
+  22:sprite.c      **** 	sprite->is_visible = 1;
+  65               		.loc 1 22 0
+  66 0026 81E0      		ldi r24,lo8(1)
+  67               	.LVL1:
+  68 0028 828B      		std Z+18,r24
+  23:sprite.c      **** 	sprite->dx = 0.0f;
+  69               		.loc 1 23 0
+  70 002a 1086      		std Z+8,__zero_reg__
+  71 002c 1186      		std Z+9,__zero_reg__
+  72 002e 1286      		std Z+10,__zero_reg__
+  73 0030 1386      		std Z+11,__zero_reg__
+  24:sprite.c      **** 	sprite->dy = 0.0f;
+  74               		.loc 1 24 0
+  75 0032 1486      		std Z+12,__zero_reg__
+  76 0034 1586      		std Z+13,__zero_reg__
+  77 0036 1686      		std Z+14,__zero_reg__
+  78 0038 1786      		std Z+15,__zero_reg__
+  79               	/* epilogue start */
+  25:sprite.c      **** }
+  80               		.loc 1 25 0
+  81 003a 1F91      		pop r17
+  82 003c 0F91      		pop r16
+  83               	.LVL2:
+  84 003e EF90      		pop r14
+  85               	.LVL3:
+  86 0040 CF90      		pop r12
+  87               	.LVL4:
+  88 0042 BF90      		pop r11
+  89 0044 AF90      		pop r10
+  90               	.LVL5:
+  91 0046 0895      		ret
+  92               		.cfi_endproc
+  93               	.LFE3:
+  95               	.global	__floatsisf
+  96               	.global	__mulsf3
+  97               	.global	__fixunssfsi
+  98               	.global	__addsf3
+  99               	.global	__fixsfsi
+ 100               		.section	.text.draw_sprite,"ax",@progbits
+ 101               	.global	draw_sprite
+ 103               	draw_sprite:
+ 104               	.LFB4:
+  26:sprite.c      **** 
+  27:sprite.c      **** void draw_sprite(Sprite* sprite ) {
+ 105               		.loc 1 27 0
+ 106               		.cfi_startproc
+ 107               	.LVL6:
+ 108 0000 4F92      		push r4
+ 109               	.LCFI6:
+ 110               		.cfi_def_cfa_offset 3
+ 111               		.cfi_offset 4, -2
+ 112 0002 5F92      		push r5
+ 113               	.LCFI7:
+ 114               		.cfi_def_cfa_offset 4
+ 115               		.cfi_offset 5, -3
+ 116 0004 6F92      		push r6
+ 117               	.LCFI8:
+ 118               		.cfi_def_cfa_offset 5
+ 119               		.cfi_offset 6, -4
+ 120 0006 7F92      		push r7
+ 121               	.LCFI9:
+ 122               		.cfi_def_cfa_offset 6
+ 123               		.cfi_offset 7, -5
+ 124 0008 9F92      		push r9
+ 125               	.LCFI10:
+ 126               		.cfi_def_cfa_offset 7
+ 127               		.cfi_offset 9, -6
+ 128 000a AF92      		push r10
+ 129               	.LCFI11:
+ 130               		.cfi_def_cfa_offset 8
+ 131               		.cfi_offset 10, -7
+ 132 000c BF92      		push r11
+ 133               	.LCFI12:
+ 134               		.cfi_def_cfa_offset 9
+ 135               		.cfi_offset 11, -8
+ 136 000e CF92      		push r12
+ 137               	.LCFI13:
+ 138               		.cfi_def_cfa_offset 10
+ 139               		.cfi_offset 12, -9
+ 140 0010 DF92      		push r13
+ 141               	.LCFI14:
+ 142               		.cfi_def_cfa_offset 11
+ 143               		.cfi_offset 13, -10
+ 144 0012 EF92      		push r14
+ 145               	.LCFI15:
+ 146               		.cfi_def_cfa_offset 12
+ 147               		.cfi_offset 14, -11
+ 148 0014 FF92      		push r15
+ 149               	.LCFI16:
+ 150               		.cfi_def_cfa_offset 13
+ 151               		.cfi_offset 15, -12
+ 152 0016 0F93      		push r16
+ 153               	.LCFI17:
+ 154               		.cfi_def_cfa_offset 14
+ 155               		.cfi_offset 16, -13
+ 156 0018 1F93      		push r17
+ 157               	.LCFI18:
+ 158               		.cfi_def_cfa_offset 15
+ 159               		.cfi_offset 17, -14
+ 160 001a CF93      		push r28
+ 161               	.LCFI19:
+ 162               		.cfi_def_cfa_offset 16
+ 163               		.cfi_offset 28, -15
+ 164 001c DF93      		push r29
+ 165               	.LCFI20:
+ 166               		.cfi_def_cfa_offset 17
+ 167               		.cfi_offset 29, -16
+ 168               	/* prologue: function */
+ 169               	/* frame size = 0 */
+ 170               	/* stack size = 15 */
+ 171               	.L__stack_usage = 15
+ 172 001e EC01      		movw r28,r24
+  28:sprite.c      **** 	// Do nothing if not visible
+  29:sprite.c      **** 	if (!sprite->is_visible) {
+ 173               		.loc 1 29 0
+ 174 0020 8A89      		ldd r24,Y+18
+ 175               	.LVL7:
+ 176 0022 8823      		tst r24
+ 177 0024 01F4      		brne .+2
+ 178 0026 00C0      		rjmp .L2
+  30:sprite.c      **** 		return;
+  31:sprite.c      **** 	}
+  32:sprite.c      **** 
+  33:sprite.c      **** 	// Loop through the bit-packed bitmap data, drawing each individual bit
+  34:sprite.c      **** 	// (assume that the bitmap size is h * ceil(w/8))
+  35:sprite.c      **** 	unsigned char dx, dy, byte_width = ceil(sprite->width / 8.0f);
+ 179               		.loc 1 35 0
+ 180 0028 6889      		ldd r22,Y+16
+ 181 002a 70E0      		ldi r23,0
+ 182 002c 80E0      		ldi r24,0
+ 183 002e 90E0      		ldi r25,0
+ 184 0030 0E94 0000 		call __floatsisf
+ 185               	.LVL8:
+ 186 0034 20E0      		ldi r18,0
+ 187 0036 30E0      		ldi r19,0
+ 188 0038 40E0      		ldi r20,0
+ 189 003a 5EE3      		ldi r21,lo8(62)
+ 190 003c 0E94 0000 		call __mulsf3
+ 191               	.LVL9:
+ 192 0040 0E94 0000 		call ceil
+ 193               	.LVL10:
+ 194 0044 0E94 0000 		call __fixunssfsi
+ 195               	.LVL11:
+ 196 0048 962E      		mov r9,r22
+ 197               	.LVL12:
+  36:sprite.c      **** 	for (dy = 0; dy<sprite->height; dy++) {
+ 198               		.loc 1 36 0
+ 199 004a A12C      		mov r10,__zero_reg__
+ 200               	.LVL13:
+ 201               	.L4:
+ 202               		.loc 1 36 0 is_stmt 0 discriminator 1
+ 203 004c 8989      		ldd r24,Y+17
+ 204 004e A816      		cp r10,r24
+ 205 0050 00F0      		brlo .+2
+ 206 0052 00C0      		rjmp .L2
+  37:sprite.c      **** 		for (dx = 0; dx<sprite->width; dx++) {
+  38:sprite.c      **** 			set_pixel(
+  39:sprite.c      **** 				(unsigned char) sprite->x+dx,
+  40:sprite.c      **** 				(unsigned char) sprite->y+dy,
+  41:sprite.c      **** 				(sprite->bitmap[(int) (dy*byte_width+floor(dx/8.0f))] >> (7 - dx%8)) & 1 // ouch...
+ 207               		.loc 1 41 0 is_stmt 1
+ 208 0054 A99C      		mul r10,r9
+ 209 0056 6001      		movw r12,r0
+ 210 0058 1124      		clr __zero_reg__
+ 211 005a B12C      		mov r11,__zero_reg__
+ 212 005c 0D2C      		mov __tmp_reg__,r13
+ 213 005e 000C      		lsl r0
+ 214 0060 EE08      		sbc r14,r14
+ 215 0062 FF08      		sbc r15,r15
+ 216 0064 00C0      		rjmp .L7
+ 217               	.LVL14:
+ 218               	.L5:
+ 219               		.loc 1 41 0 is_stmt 0 discriminator 3
+ 220 0066 0B2D      		mov r16,r11
+ 221 0068 10E0      		ldi r17,0
+ 222 006a B801      		movw r22,r16
+ 223 006c 012E      		mov __tmp_reg__,r17
+ 224 006e 000C      		lsl r0
+ 225 0070 880B      		sbc r24,r24
+ 226 0072 990B      		sbc r25,r25
+ 227 0074 0E94 0000 		call __floatsisf
+ 228               	.LVL15:
+ 229 0078 20E0      		ldi r18,0
+ 230 007a 30E0      		ldi r19,0
+ 231 007c 40E0      		ldi r20,0
+ 232 007e 5EE3      		ldi r21,lo8(62)
+ 233 0080 0E94 0000 		call __mulsf3
+ 234               	.LVL16:
+ 235 0084 0E94 0000 		call floor
+ 236               	.LVL17:
+ 237 0088 2B01      		movw r4,r22
+ 238 008a 3C01      		movw r6,r24
+ 239 008c C701      		movw r24,r14
+ 240 008e B601      		movw r22,r12
+ 241 0090 0E94 0000 		call __floatsisf
+ 242               	.LVL18:
+ 243 0094 A301      		movw r20,r6
+ 244 0096 9201      		movw r18,r4
+ 245 0098 0E94 0000 		call __addsf3
+ 246               	.LVL19:
+ 247 009c 0E94 0000 		call __fixsfsi
+ 248               	.LVL20:
+ 249 00a0 2B89      		ldd r18,Y+19
+ 250 00a2 3C89      		ldd r19,Y+20
+ 251 00a4 C901      		movw r24,r18
+ 252 00a6 860F      		add r24,r22
+ 253 00a8 971F      		adc r25,r23
+ 254 00aa FC01      		movw r30,r24
+ 255 00ac 4081      		ld r20,Z
+ 256 00ae 50E0      		ldi r21,0
+ 257 00b0 0095      		com r16
+ 258 00b2 1095      		com r17
+ 259 00b4 0770      		andi r16,7
+ 260 00b6 1127      		clr r17
+ 261 00b8 00C0      		rjmp 2f
+ 262               		1:
+ 263 00ba 5595      		asr r21
+ 264 00bc 4795      		ror r20
+ 265               		2:
+ 266 00be 0A95      		dec r16
+ 267 00c0 02F4      		brpl 1b
+  38:sprite.c      **** 				(unsigned char) sprite->x+dx,
+ 268               		.loc 1 38 0 is_stmt 1 discriminator 3
+ 269 00c2 142F      		mov r17,r20
+ 270 00c4 1170      		andi r17,lo8(1)
+  40:sprite.c      **** 				(sprite->bitmap[(int) (dy*byte_width+floor(dx/8.0f))] >> (7 - dx%8)) & 1 // ouch...
+ 271               		.loc 1 40 0 discriminator 3
+ 272 00c6 6C81      		ldd r22,Y+4
+ 273 00c8 7D81      		ldd r23,Y+5
+ 274 00ca 8E81      		ldd r24,Y+6
+ 275 00cc 9F81      		ldd r25,Y+7
+ 276 00ce 0E94 0000 		call __fixunssfsi
+ 277               	.LVL21:
+  38:sprite.c      **** 				(unsigned char) sprite->x+dx,
+ 278               		.loc 1 38 0 discriminator 3
+ 279 00d2 062F      		mov r16,r22
+ 280 00d4 0A0D      		add r16,r10
+  39:sprite.c      **** 				(unsigned char) sprite->y+dy,
+ 281               		.loc 1 39 0 discriminator 3
+ 282 00d6 6881      		ld r22,Y
+ 283 00d8 7981      		ldd r23,Y+1
+ 284 00da 8A81      		ldd r24,Y+2
+ 285 00dc 9B81      		ldd r25,Y+3
+ 286 00de 0E94 0000 		call __fixunssfsi
+ 287               	.LVL22:
+ 288 00e2 862F      		mov r24,r22
+  38:sprite.c      **** 				(unsigned char) sprite->x+dx,
+ 289               		.loc 1 38 0 discriminator 3
+ 290 00e4 412F      		mov r20,r17
+ 291 00e6 602F      		mov r22,r16
+ 292 00e8 8B0D      		add r24,r11
+ 293 00ea 0E94 0000 		call set_pixel
+ 294               	.LVL23:
+  37:sprite.c      **** 			set_pixel(
+ 295               		.loc 1 37 0 discriminator 3
+ 296 00ee B394      		inc r11
+ 297               	.LVL24:
+ 298               	.L7:
+  37:sprite.c      **** 			set_pixel(
+ 299               		.loc 1 37 0 is_stmt 0 discriminator 1
+ 300 00f0 8889      		ldd r24,Y+16
+ 301 00f2 B816      		cp r11,r24
+ 302 00f4 00F4      		brsh .+2
+ 303 00f6 00C0      		rjmp .L5
+  36:sprite.c      **** 		for (dx = 0; dx<sprite->width; dx++) {
+ 304               		.loc 1 36 0 is_stmt 1 discriminator 2
+ 305 00f8 A394      		inc r10
+ 306               	.LVL25:
+ 307 00fa 00C0      		rjmp .L4
+ 308               	.LVL26:
+ 309               	.L2:
+ 310               	/* epilogue start */
+  42:sprite.c      **** 			);
+  43:sprite.c      **** 		}
+  44:sprite.c      **** 	}
+  45:sprite.c      **** }
+ 311               		.loc 1 45 0
+ 312 00fc DF91      		pop r29
+ 313 00fe CF91      		pop r28
+ 314               	.LVL27:
+ 315 0100 1F91      		pop r17
+ 316 0102 0F91      		pop r16
+ 317 0104 FF90      		pop r15
+ 318 0106 EF90      		pop r14
+ 319 0108 DF90      		pop r13
+ 320 010a CF90      		pop r12
+ 321 010c BF90      		pop r11
+ 322 010e AF90      		pop r10
+ 323 0110 9F90      		pop r9
+ 324 0112 7F90      		pop r7
+ 325 0114 6F90      		pop r6
+ 326 0116 5F90      		pop r5
+ 327 0118 4F90      		pop r4
+ 328 011a 0895      		ret
+ 329               		.cfi_endproc
+ 330               	.LFE4:
+ 332               		.text
+ 333               	.Letext0:
+ 334               		.file 2 "sprite.h"
+ 335               		.file 3 "ascii_font.h"
+ 336               		.file 4 "/usr/avr/include/math.h"
+ 337               		.file 5 "graphics.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sprite.c
+     /tmp/ccLbdaHg.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccLbdaHg.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccLbdaHg.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccLbdaHg.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccLbdaHg.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccLbdaHg.s:13     .text.init_sprite:0000000000000000 init_sprite
+     /tmp/ccLbdaHg.s:103    .text.draw_sprite:0000000000000000 draw_sprite
+
+UNDEFINED SYMBOLS
+__floatsisf
+__mulsf3
+__fixunssfsi
+__addsf3
+__fixsfsi
+ceil
+floor
+set_pixel
