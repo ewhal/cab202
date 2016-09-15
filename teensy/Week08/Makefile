@@ -7,7 +7,7 @@
 #
 
 # Modify these
-SRC=question_2
+SRC=q4
 
 CAB202_LIB_DIR=cab202_teensy
 
