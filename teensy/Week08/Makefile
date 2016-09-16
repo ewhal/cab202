@@ -7,7 +7,7 @@
 #
 
 # Modify these
-SRC=q4
+SRC=snake
 
 CAB202_LIB_DIR=cab202_teensy
 
