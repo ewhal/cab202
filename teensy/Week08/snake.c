@@ -28,9 +28,9 @@ int main() {
     PORTB = 0b00000000;
 
     clear_screen();
-    draw_string(5,5,"Microcontroller");
-    draw_string(5,15,"fun begins!");
-    draw_string(5,25,"Happy Hacking");
+    draw_string(5,5,"Welcome to ");
+    draw_string(5,15,"Snake");
+    draw_string(5,25,"dpad movement");
     show_screen();
     while(1){
         // Read input from PORTF.
