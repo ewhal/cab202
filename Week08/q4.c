@@ -40,22 +40,22 @@ int main() {
             // Send output to PORTB.
             PORTB = 0b0000100;
         }
-        if(PINB & 0b00000001 ){
+//        if(PINB & 0b00000001 ){
             // Send output to PORTB.
-            PORTB = 0b0000000;
-            PORTB = 0b0001100;
+  //          PORTB = 0b0001100;
+  //      }
+        if(PINB & 0b00000001 ){
+            
+            PORTB = ~PORTB;
             _delay_ms(500);
+
+
+            // Send output to PORTB.
         }
-
-
-
         if(PINB & 0b10000000 ){
             // Send output to PORTB.
             PORTB = 0b0000000;
         }
-
-
-
     }
 
 
