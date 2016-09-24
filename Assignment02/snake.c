@@ -13,8 +13,8 @@ int main() {
 
 
     
-    sprite snake;
-    sprite_init(snake, 1, 1, 1, 1,  )
+    sprite_id snake;
+    snake = sprite_init(snake, 1, 1, 1, 1,  )
 
 
     // SW0 and SW1 are connected to pins F6 and F5. Configure all pins as Input(0)
