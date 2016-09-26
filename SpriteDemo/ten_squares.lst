@@ -1,0 +1,1115 @@
+   1               		.file	"ten_squares.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	__floatsisf
+  11               	.global	__addsf3
+  12               	.global	__mulsf3
+  13               		.section	.text.setup_ten_squares,"ax",@progbits
+  14               	.global	setup_ten_squares
+  16               	setup_ten_squares:
+  17               	.LFB13:
+  18               		.file 1 "ten_squares.c"
+   1:ten_squares.c **** /*
+   2:ten_squares.c **** *	File:	one_square.c
+   3:ten_squares.c **** *	Author: Lawrence Buckingham, Queensland University of Technology.
+   4:ten_squares.c **** *	Date:	27 April 2015.
+   5:ten_squares.c **** *
+   6:ten_squares.c **** *	Implementation of the functions provided by the one_square "game".
+   7:ten_squares.c **** */
+   8:ten_squares.c **** 
+   9:ten_squares.c **** #include <stdlib.h>
+  10:ten_squares.c **** #include <stdio.h>
+  11:ten_squares.c **** #include <math.h>
+  12:ten_squares.c **** #include <util/delay.h>
+  13:ten_squares.c **** #include "byte.h"
+  14:ten_squares.c **** #include "ten_squares.h"
+  15:ten_squares.c **** #include "sprite.h"
+  16:ten_squares.c **** #include "friendly_ports.h"
+  17:ten_squares.c **** #include "graphics.h"
+  18:ten_squares.c **** 
+  19:ten_squares.c **** void setup_ten_squares(
+  20:ten_squares.c **** 	Sprite sprites[],
+  21:ten_squares.c **** 	byte *bitmaps[],
+  22:ten_squares.c **** 	byte widths[],
+  23:ten_squares.c **** 	byte heights[],
+  24:ten_squares.c **** 	int sprite_count,
+  25:ten_squares.c **** 	int bitmap_count
+  26:ten_squares.c **** 	);
+  27:ten_squares.c **** void update_ten_squares( Sprite * sprites );
+  28:ten_squares.c **** void draw_ten_squares( Sprite * sprites );
+  29:ten_squares.c **** void update_one_square( Sprite * sprite );
+  30:ten_squares.c **** 
+  31:ten_squares.c **** void play_ten_squares() {
+  32:ten_squares.c **** 	clear_screen();
+  33:ten_squares.c **** 	draw_string( 0, 0, "Click right" );
+  34:ten_squares.c **** 	draw_string( 0, 8, "to play 10 sq." );
+  35:ten_squares.c **** 	show_screen();
+  36:ten_squares.c **** 	wait_until( pressed( SW1 ) );
+  37:ten_squares.c **** 	_delay_ms(100);
+  38:ten_squares.c **** 	wait_until( !pressed( SW1 ) );
+  39:ten_squares.c **** 
+  40:ten_squares.c **** 	_delay_ms( 500 );
+  41:ten_squares.c **** 
+  42:ten_squares.c **** 	// Notes: 
+  43:ten_squares.c **** 	//	byte is typedef name for unsigned char, defined in byte.h
+  44:ten_squares.c **** 	//	UINT and BYTE macros provide a standards-compliant way to express
+  45:ten_squares.c **** 	//	a binary literal ... the 0b00000000 notation supported by gcc is
+  46:ten_squares.c **** 	//	not defined in the Standard C language.
+  47:ten_squares.c **** 
+  48:ten_squares.c **** 	static byte bitmap1[] = {
+  49:ten_squares.c **** 		BYTE( 11111111 ),
+  50:ten_squares.c **** 		BYTE( 10000001 ),
+  51:ten_squares.c **** 		BYTE( 10000001 ),
+  52:ten_squares.c **** 		BYTE( 10000001 ),
+  53:ten_squares.c **** 		BYTE( 10000001 ),
+  54:ten_squares.c **** 		BYTE( 10000001 ),
+  55:ten_squares.c **** 		BYTE( 10000001 ),
+  56:ten_squares.c **** 		BYTE( 11111111 )
+  57:ten_squares.c **** 	};
+  58:ten_squares.c **** 
+  59:ten_squares.c **** 	static byte bitmap2[] = {
+  60:ten_squares.c **** 		BYTE( 11111000 ),
+  61:ten_squares.c **** 		BYTE( 10001000 ),
+  62:ten_squares.c **** 		BYTE( 10001000 ),
+  63:ten_squares.c **** 		BYTE( 10001000 ),
+  64:ten_squares.c **** 		BYTE( 11111000 )
+  65:ten_squares.c **** 	};
+  66:ten_squares.c **** 
+  67:ten_squares.c **** 	static byte bitmap3[] = {
+  68:ten_squares.c **** 		UINT( 11111111, 11110000 ),
+  69:ten_squares.c **** 		UINT( 10000000, 00010000 ),
+  70:ten_squares.c **** 		UINT( 10000000, 00010000 ),
+  71:ten_squares.c **** 		UINT( 10000000, 00010000 ),
+  72:ten_squares.c **** 		UINT( 10000000, 00010000 ),
+  73:ten_squares.c **** 		UINT( 10000000, 00010000 ),
+  74:ten_squares.c **** 		UINT( 10000000, 00010000 ),
+  75:ten_squares.c **** 		UINT( 11111111, 11110000 )
+  76:ten_squares.c **** 	};
+  77:ten_squares.c **** 
+  78:ten_squares.c **** 	byte *bitmaps[3] = { bitmap1, bitmap2, bitmap3 };
+  79:ten_squares.c **** 	byte widths[] = { 8, 5, 12 };
+  80:ten_squares.c **** 	byte heights[] = { 8, 5, 8 };
+  81:ten_squares.c **** 
+  82:ten_squares.c **** #define SPR_COUNT (10)
+  83:ten_squares.c **** 
+  84:ten_squares.c **** 	Sprite sprites[SPR_COUNT];
+  85:ten_squares.c **** 	srandom( 5198985 );
+  86:ten_squares.c **** 
+  87:ten_squares.c **** 	setup_ten_squares( 
+  88:ten_squares.c **** 		sprites, bitmaps, widths, heights, 
+  89:ten_squares.c **** 		SPR_COUNT, 
+  90:ten_squares.c **** 		sizeof( bitmaps ) / sizeof( bitmaps[0] ) 
+  91:ten_squares.c **** 	);
+  92:ten_squares.c **** 
+  93:ten_squares.c **** 	while ( !pressed( SW1 ) ) {
+  94:ten_squares.c **** 		clear_screen();
+  95:ten_squares.c **** 		update_ten_squares( sprites );
+  96:ten_squares.c **** 		draw_ten_squares( sprites );
+  97:ten_squares.c **** 		show_screen();
+  98:ten_squares.c **** 		_delay_ms( 50 );
+  99:ten_squares.c **** 	}
+ 100:ten_squares.c **** 
+ 101:ten_squares.c **** 	clear_screen();
+ 102:ten_squares.c **** 	draw_string( 0, 0, "Game Over" );
+ 103:ten_squares.c **** 	show_screen();
+ 104:ten_squares.c **** 
+ 105:ten_squares.c **** 	_delay_ms( 500 );
+ 106:ten_squares.c **** 	db_wait();
+ 107:ten_squares.c **** }
+ 108:ten_squares.c **** 
+ 109:ten_squares.c **** void setup_ten_squares( 
+ 110:ten_squares.c **** 	Sprite sprites[], 
+ 111:ten_squares.c **** 	byte *bitmaps[], 
+ 112:ten_squares.c **** 	byte widths[],
+ 113:ten_squares.c **** 	byte heights[],
+ 114:ten_squares.c **** 	int sprite_count, 
+ 115:ten_squares.c **** 	int bitmap_count 
+ 116:ten_squares.c **** ) {
+  19               		.loc 1 116 0
+  20               		.cfi_startproc
+  21               	.LVL0:
+  22 0000 2F92      		push r2
+  23               	.LCFI0:
+  24               		.cfi_def_cfa_offset 3
+  25               		.cfi_offset 2, -2
+  26 0002 3F92      		push r3
+  27               	.LCFI1:
+  28               		.cfi_def_cfa_offset 4
+  29               		.cfi_offset 3, -3
+  30 0004 4F92      		push r4
+  31               	.LCFI2:
+  32               		.cfi_def_cfa_offset 5
+  33               		.cfi_offset 4, -4
+  34 0006 5F92      		push r5
+  35               	.LCFI3:
+  36               		.cfi_def_cfa_offset 6
+  37               		.cfi_offset 5, -5
+  38 0008 6F92      		push r6
+  39               	.LCFI4:
+  40               		.cfi_def_cfa_offset 7
+  41               		.cfi_offset 6, -6
+  42 000a 7F92      		push r7
+  43               	.LCFI5:
+  44               		.cfi_def_cfa_offset 8
+  45               		.cfi_offset 7, -7
+  46 000c 8F92      		push r8
+  47               	.LCFI6:
+  48               		.cfi_def_cfa_offset 9
+  49               		.cfi_offset 8, -8
+  50 000e 9F92      		push r9
+  51               	.LCFI7:
+  52               		.cfi_def_cfa_offset 10
+  53               		.cfi_offset 9, -9
+  54 0010 AF92      		push r10
+  55               	.LCFI8:
+  56               		.cfi_def_cfa_offset 11
+  57               		.cfi_offset 10, -10
+  58 0012 BF92      		push r11
+  59               	.LCFI9:
+  60               		.cfi_def_cfa_offset 12
+  61               		.cfi_offset 11, -11
+  62 0014 CF92      		push r12
+  63               	.LCFI10:
+  64               		.cfi_def_cfa_offset 13
+  65               		.cfi_offset 12, -12
+  66 0016 DF92      		push r13
+  67               	.LCFI11:
+  68               		.cfi_def_cfa_offset 14
+  69               		.cfi_offset 13, -13
+  70 0018 EF92      		push r14
+  71               	.LCFI12:
+  72               		.cfi_def_cfa_offset 15
+  73               		.cfi_offset 14, -14
+  74 001a FF92      		push r15
+  75               	.LCFI13:
+  76               		.cfi_def_cfa_offset 16
+  77               		.cfi_offset 15, -15
+  78 001c 0F93      		push r16
+  79               	.LCFI14:
+  80               		.cfi_def_cfa_offset 17
+  81               		.cfi_offset 16, -16
+  82 001e 1F93      		push r17
+  83               	.LCFI15:
+  84               		.cfi_def_cfa_offset 18
+  85               		.cfi_offset 17, -17
+  86 0020 CF93      		push r28
+  87               	.LCFI16:
+  88               		.cfi_def_cfa_offset 19
+  89               		.cfi_offset 28, -18
+  90 0022 DF93      		push r29
+  91               	.LCFI17:
+  92               		.cfi_def_cfa_offset 20
+  93               		.cfi_offset 29, -19
+  94 0024 00D0      		rcall .
+  95 0026 00D0      		rcall .
+  96 0028 00D0      		rcall .
+  97               	.LCFI18:
+  98               		.cfi_def_cfa_offset 26
+  99 002a CDB7      		in r28,__SP_L__
+ 100 002c DEB7      		in r29,__SP_H__
+ 101               	.LCFI19:
+ 102               		.cfi_def_cfa_register 28
+ 103               	/* prologue: function */
+ 104               	/* frame size = 6 */
+ 105               	/* stack size = 24 */
+ 106               	.L__stack_usage = 24
+ 107 002e 7A83      		std Y+2,r23
+ 108 0030 6983      		std Y+1,r22
+ 109 0032 1A01      		movw r2,r20
+ 110 0034 3901      		movw r6,r18
+ 111 0036 1C83      		std Y+4,r17
+ 112 0038 0B83      		std Y+3,r16
+ 113 003a 2701      		movw r4,r14
+ 114               	.LVL1:
+ 115 003c 9E83      		std Y+6,r25
+ 116 003e 8D83      		std Y+5,r24
+ 117               	.LBB12:
+ 117:ten_squares.c **** 	for ( int i = 0; i < sprite_count; i++ ) {
+ 118               		.loc 1 117 0
+ 119 0040 812C      		mov r8,__zero_reg__
+ 120 0042 912C      		mov r9,__zero_reg__
+ 121               	.LVL2:
+ 122               	.L2:
+ 123               		.loc 1 117 0 is_stmt 0 discriminator 1
+ 124 0044 8B81      		ldd r24,Y+3
+ 125 0046 9C81      		ldd r25,Y+4
+ 126 0048 8816      		cp r8,r24
+ 127 004a 9906      		cpc r9,r25
+ 128 004c 04F0      		brlt .L3
+ 129               	/* epilogue start */
+ 130               	.LBE12:
+ 118:ten_squares.c **** 		Sprite * sprite = &sprites[i];
+ 119:ten_squares.c **** 
+ 120:ten_squares.c **** 		byte * bitmap = bitmaps[i % bitmap_count];
+ 121:ten_squares.c **** 		byte width = widths[i % bitmap_count];
+ 122:ten_squares.c **** 		byte height = heights[i % bitmap_count];
+ 123:ten_squares.c **** 
+ 124:ten_squares.c **** 		init_sprite( sprite, 0, 0, width, height, bitmap );
+ 125:ten_squares.c **** 		double angle = ( (double) random( ) ) * 2 * M_PI / RANDOM_MAX;
+ 126:ten_squares.c **** 		sprite->dx = cos( angle );
+ 127:ten_squares.c **** 		sprite->dy = sin( angle );
+ 128:ten_squares.c **** 	}
+ 129:ten_squares.c **** }
+ 131               		.loc 1 129 0 is_stmt 1
+ 132 004e 2696      		adiw r28,6
+ 133               	.LVL3:
+ 134 0050 0FB6      		in __tmp_reg__,__SREG__
+ 135 0052 F894      		cli
+ 136 0054 DEBF      		out __SP_H__,r29
+ 137 0056 0FBE      		out __SREG__,__tmp_reg__
+ 138 0058 CDBF      		out __SP_L__,r28
+ 139               	.LVL4:
+ 140 005a DF91      		pop r29
+ 141 005c CF91      		pop r28
+ 142 005e 1F91      		pop r17
+ 143 0060 0F91      		pop r16
+ 144 0062 FF90      		pop r15
+ 145 0064 EF90      		pop r14
+ 146 0066 DF90      		pop r13
+ 147 0068 CF90      		pop r12
+ 148 006a BF90      		pop r11
+ 149 006c AF90      		pop r10
+ 150 006e 9F90      		pop r9
+ 151 0070 8F90      		pop r8
+ 152               	.LVL5:
+ 153 0072 7F90      		pop r7
+ 154 0074 6F90      		pop r6
+ 155               	.LVL6:
+ 156 0076 5F90      		pop r5
+ 157 0078 4F90      		pop r4
+ 158               	.LVL7:
+ 159 007a 3F90      		pop r3
+ 160 007c 2F90      		pop r2
+ 161               	.LVL8:
+ 162 007e 0895      		ret
+ 163               	.LVL9:
+ 164               	.L3:
+ 165               	.LBB14:
+ 166               	.LBB13:
+ 120:ten_squares.c **** 		byte width = widths[i % bitmap_count];
+ 167               		.loc 1 120 0 discriminator 3
+ 168 0080 C401      		movw r24,r8
+ 169 0082 B201      		movw r22,r4
+ 170 0084 0E94 0000 		call __divmodhi4
+ 171               	.LVL10:
+ 172 0088 FC01      		movw r30,r24
+ 173 008a EE0F      		lsl r30
+ 174 008c FF1F      		rol r31
+ 175 008e 2981      		ldd r18,Y+1
+ 176 0090 3A81      		ldd r19,Y+2
+ 177 0092 E20F      		add r30,r18
+ 178 0094 F31F      		adc r31,r19
+ 179               	.LVL11:
+ 124:ten_squares.c **** 		double angle = ( (double) random( ) ) * 2 * M_PI / RANDOM_MAX;
+ 180               		.loc 1 124 0 discriminator 3
+ 181 0096 A080      		ld r10,Z
+ 182 0098 B180      		ldd r11,Z+1
+ 122:ten_squares.c **** 
+ 183               		.loc 1 122 0 discriminator 3
+ 184 009a D301      		movw r26,r6
+ 185 009c A80F      		add r26,r24
+ 186 009e B91F      		adc r27,r25
+ 187               	.LVL12:
+ 121:ten_squares.c **** 		byte height = heights[i % bitmap_count];
+ 188               		.loc 1 121 0 discriminator 3
+ 189 00a0 F101      		movw r30,r2
+ 190               	.LVL13:
+ 191 00a2 E80F      		add r30,r24
+ 192 00a4 F91F      		adc r31,r25
+ 193               	.LVL14:
+ 124:ten_squares.c **** 		double angle = ( (double) random( ) ) * 2 * M_PI / RANDOM_MAX;
+ 194               		.loc 1 124 0 discriminator 3
+ 195 00a6 CC90      		ld r12,X
+ 196 00a8 E080      		ld r14,Z
+ 197 00aa 00E0      		ldi r16,0
+ 198 00ac 10E0      		ldi r17,0
+ 199 00ae 9801      		movw r18,r16
+ 200 00b0 B901      		movw r22,r18
+ 201 00b2 A801      		movw r20,r16
+ 202 00b4 8D81      		ldd r24,Y+5
+ 203 00b6 9E81      		ldd r25,Y+6
+ 204 00b8 0E94 0000 		call init_sprite
+ 205               	.LVL15:
+ 125:ten_squares.c **** 		sprite->dx = cos( angle );
+ 206               		.loc 1 125 0 discriminator 3
+ 207 00bc 0E94 0000 		call random
+ 208               	.LVL16:
+ 209 00c0 0E94 0000 		call __floatsisf
+ 210               	.LVL17:
+ 211 00c4 9B01      		movw r18,r22
+ 212 00c6 AC01      		movw r20,r24
+ 213 00c8 0E94 0000 		call __addsf3
+ 214               	.LVL18:
+ 215 00cc 2BED      		ldi r18,lo8(-37)
+ 216 00ce 3FE0      		ldi r19,lo8(15)
+ 217 00d0 49E4      		ldi r20,lo8(73)
+ 218 00d2 50E4      		ldi r21,lo8(64)
+ 219 00d4 0E94 0000 		call __mulsf3
+ 220               	.LVL19:
+ 221 00d8 20E0      		ldi r18,0
+ 222 00da 30E0      		ldi r19,0
+ 223 00dc 40E0      		ldi r20,0
+ 224 00de 50E3      		ldi r21,lo8(48)
+ 225 00e0 0E94 0000 		call __mulsf3
+ 226               	.LVL20:
+ 227 00e4 6B01      		movw r12,r22
+ 228 00e6 7C01      		movw r14,r24
+ 229               	.LVL21:
+ 126:ten_squares.c **** 		sprite->dy = sin( angle );
+ 230               		.loc 1 126 0 discriminator 3
+ 231 00e8 0E94 0000 		call cos
+ 232               	.LVL22:
+ 233 00ec AD81      		ldd r26,Y+5
+ 234 00ee BE81      		ldd r27,Y+6
+ 235 00f0 1896      		adiw r26,8
+ 236 00f2 6D93      		st X+,r22
+ 237 00f4 7D93      		st X+,r23
+ 238 00f6 8D93      		st X+,r24
+ 239 00f8 9C93      		st X,r25
+ 240 00fa 1B97      		sbiw r26,8+3
+ 127:ten_squares.c **** 	}
+ 241               		.loc 1 127 0 discriminator 3
+ 242 00fc C701      		movw r24,r14
+ 243 00fe B601      		movw r22,r12
+ 244 0100 0E94 0000 		call sin
+ 245               	.LVL23:
+ 246 0104 ED81      		ldd r30,Y+5
+ 247 0106 FE81      		ldd r31,Y+6
+ 248 0108 6487      		std Z+12,r22
+ 249 010a 7587      		std Z+13,r23
+ 250 010c 8687      		std Z+14,r24
+ 251 010e 9787      		std Z+15,r25
+ 252               	.LBE13:
+ 117:ten_squares.c **** 		Sprite * sprite = &sprites[i];
+ 253               		.loc 1 117 0 discriminator 3
+ 254 0110 FFEF      		ldi r31,-1
+ 255 0112 8F1A      		sub r8,r31
+ 256 0114 9F0A      		sbc r9,r31
+ 257               	.LVL24:
+ 258 0116 2D81      		ldd r18,Y+5
+ 259 0118 3E81      		ldd r19,Y+6
+ 260 011a 2B5E      		subi r18,-21
+ 261 011c 3F4F      		sbci r19,-1
+ 262 011e 3E83      		std Y+6,r19
+ 263 0120 2D83      		std Y+5,r18
+ 264               	.LVL25:
+ 265 0122 00C0      		rjmp .L2
+ 266               	.LBE14:
+ 267               		.cfi_endproc
+ 268               	.LFE13:
+ 270               		.section	.text.update_ten_squares,"ax",@progbits
+ 271               	.global	update_ten_squares
+ 273               	update_ten_squares:
+ 274               	.LFB14:
+ 130:ten_squares.c **** 
+ 131:ten_squares.c **** void update_ten_squares( Sprite * sprites ) {
+ 275               		.loc 1 131 0
+ 276               		.cfi_startproc
+ 277               	.LVL26:
+ 278 0000 0F93      		push r16
+ 279               	.LCFI20:
+ 280               		.cfi_def_cfa_offset 3
+ 281               		.cfi_offset 16, -2
+ 282 0002 1F93      		push r17
+ 283               	.LCFI21:
+ 284               		.cfi_def_cfa_offset 4
+ 285               		.cfi_offset 17, -3
+ 286 0004 CF93      		push r28
+ 287               	.LCFI22:
+ 288               		.cfi_def_cfa_offset 5
+ 289               		.cfi_offset 28, -4
+ 290 0006 DF93      		push r29
+ 291               	.LCFI23:
+ 292               		.cfi_def_cfa_offset 6
+ 293               		.cfi_offset 29, -5
+ 294               	/* prologue: function */
+ 295               	/* frame size = 0 */
+ 296               	/* stack size = 4 */
+ 297               	.L__stack_usage = 4
+ 298 0008 EC01      		movw r28,r24
+ 299               	.LVL27:
+ 300 000a 8C01      		movw r16,r24
+ 301 000c 0E52      		subi r16,46
+ 302 000e 1F4F      		sbci r17,-1
+ 303               	.LVL28:
+ 304               	.L5:
+ 305               	.LBB15:
+ 132:ten_squares.c **** 	for ( int i = 0; i < SPR_COUNT; i++ ) {
+ 133:ten_squares.c **** 		update_one_square( sprites + i );
+ 306               		.loc 1 133 0 discriminator 3
+ 307 0010 CE01      		movw r24,r28
+ 308 0012 0E94 0000 		call update_one_square
+ 309               	.LVL29:
+ 310 0016 6596      		adiw r28,21
+ 132:ten_squares.c **** 	for ( int i = 0; i < SPR_COUNT; i++ ) {
+ 311               		.loc 1 132 0 discriminator 3
+ 312 0018 C017      		cp r28,r16
+ 313 001a D107      		cpc r29,r17
+ 314 001c 01F4      		brne .L5
+ 315               	/* epilogue start */
+ 316               	.LBE15:
+ 134:ten_squares.c **** 	}
+ 135:ten_squares.c **** }
+ 317               		.loc 1 135 0
+ 318 001e DF91      		pop r29
+ 319 0020 CF91      		pop r28
+ 320 0022 1F91      		pop r17
+ 321 0024 0F91      		pop r16
+ 322               	.LVL30:
+ 323 0026 0895      		ret
+ 324               		.cfi_endproc
+ 325               	.LFE14:
+ 327               		.section	.text.draw_ten_squares,"ax",@progbits
+ 328               	.global	draw_ten_squares
+ 330               	draw_ten_squares:
+ 331               	.LFB15:
+ 136:ten_squares.c **** 
+ 137:ten_squares.c **** void draw_ten_squares( Sprite * sprites ) {
+ 332               		.loc 1 137 0
+ 333               		.cfi_startproc
+ 334               	.LVL31:
+ 335 0000 0F93      		push r16
+ 336               	.LCFI24:
+ 337               		.cfi_def_cfa_offset 3
+ 338               		.cfi_offset 16, -2
+ 339 0002 1F93      		push r17
+ 340               	.LCFI25:
+ 341               		.cfi_def_cfa_offset 4
+ 342               		.cfi_offset 17, -3
+ 343 0004 CF93      		push r28
+ 344               	.LCFI26:
+ 345               		.cfi_def_cfa_offset 5
+ 346               		.cfi_offset 28, -4
+ 347 0006 DF93      		push r29
+ 348               	.LCFI27:
+ 349               		.cfi_def_cfa_offset 6
+ 350               		.cfi_offset 29, -5
+ 351               	/* prologue: function */
+ 352               	/* frame size = 0 */
+ 353               	/* stack size = 4 */
+ 354               	.L__stack_usage = 4
+ 355 0008 EC01      		movw r28,r24
+ 356               	.LVL32:
+ 357 000a 8C01      		movw r16,r24
+ 358 000c 0E52      		subi r16,46
+ 359 000e 1F4F      		sbci r17,-1
+ 360               	.LVL33:
+ 361               	.L8:
+ 362               	.LBB16:
+ 138:ten_squares.c **** 	for ( int i = 0; i < SPR_COUNT; i++ ) {
+ 139:ten_squares.c **** 		draw_sprite( sprites + i );
+ 363               		.loc 1 139 0 discriminator 3
+ 364 0010 CE01      		movw r24,r28
+ 365 0012 0E94 0000 		call draw_sprite
+ 366               	.LVL34:
+ 367 0016 6596      		adiw r28,21
+ 138:ten_squares.c **** 	for ( int i = 0; i < SPR_COUNT; i++ ) {
+ 368               		.loc 1 138 0 discriminator 3
+ 369 0018 C017      		cp r28,r16
+ 370 001a D107      		cpc r29,r17
+ 371 001c 01F4      		brne .L8
+ 372               	/* epilogue start */
+ 373               	.LBE16:
+ 140:ten_squares.c **** 	}
+ 141:ten_squares.c **** }
+ 374               		.loc 1 141 0
+ 375 001e DF91      		pop r29
+ 376 0020 CF91      		pop r28
+ 377 0022 1F91      		pop r17
+ 378 0024 0F91      		pop r16
+ 379               	.LVL35:
+ 380 0026 0895      		ret
+ 381               		.cfi_endproc
+ 382               	.LFE15:
+ 384               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 385               	.LC3:
+ 386 0000 436C 6963 		.string	"Click right"
+ 386      6B20 7269 
+ 386      6768 7400 
+ 387               	.LC4:
+ 388 000c 746F 2070 		.string	"to play 10 sq."
+ 388      6C61 7920 
+ 388      3130 2073 
+ 388      712E 00
+ 389               	.LC6:
+ 390 001b 4761 6D65 		.string	"Game Over"
+ 390      204F 7665 
+ 390      7200 
+ 391               		.section	.rodata
+ 392               	.LC5:
+ 393 0000 0000      		.word	bitmap1.2248
+ 394 0002 0000      		.word	bitmap2.2249
+ 395 0004 0000      		.word	bitmap3.2250
+ 396               	.LC1:
+ 397 0006 08        		.byte	8
+ 398 0007 05        		.byte	5
+ 399 0008 0C        		.byte	12
+ 400               	.LC2:
+ 401 0009 08        		.byte	8
+ 402 000a 05        		.byte	5
+ 403 000b 08        		.byte	8
+ 404               		.section	.text.play_ten_squares,"ax",@progbits
+ 405               	.global	play_ten_squares
+ 407               	play_ten_squares:
+ 408               	.LFB12:
+  31:ten_squares.c **** 	clear_screen();
+ 409               		.loc 1 31 0
+ 410               		.cfi_startproc
+ 411 0000 EF92      		push r14
+ 412               	.LCFI28:
+ 413               		.cfi_def_cfa_offset 3
+ 414               		.cfi_offset 14, -2
+ 415 0002 FF92      		push r15
+ 416               	.LCFI29:
+ 417               		.cfi_def_cfa_offset 4
+ 418               		.cfi_offset 15, -3
+ 419 0004 0F93      		push r16
+ 420               	.LCFI30:
+ 421               		.cfi_def_cfa_offset 5
+ 422               		.cfi_offset 16, -4
+ 423 0006 1F93      		push r17
+ 424               	.LCFI31:
+ 425               		.cfi_def_cfa_offset 6
+ 426               		.cfi_offset 17, -5
+ 427 0008 CF93      		push r28
+ 428               	.LCFI32:
+ 429               		.cfi_def_cfa_offset 7
+ 430               		.cfi_offset 28, -6
+ 431 000a DF93      		push r29
+ 432               	.LCFI33:
+ 433               		.cfi_def_cfa_offset 8
+ 434               		.cfi_offset 29, -7
+ 435 000c CDB7      		in r28,__SP_L__
+ 436 000e DEB7      		in r29,__SP_H__
+ 437               	.LCFI34:
+ 438               		.cfi_def_cfa_register 28
+ 439 0010 CE5D      		subi r28,-34
+ 440 0012 D109      		sbc r29,__zero_reg__
+ 441               	.LCFI35:
+ 442               		.cfi_def_cfa_offset 230
+ 443 0014 0FB6      		in __tmp_reg__,__SREG__
+ 444 0016 F894      		cli
+ 445 0018 DEBF      		out __SP_H__,r29
+ 446 001a 0FBE      		out __SREG__,__tmp_reg__
+ 447 001c CDBF      		out __SP_L__,r28
+ 448               	/* prologue: function */
+ 449               	/* frame size = 222 */
+ 450               	/* stack size = 228 */
+ 451               	.L__stack_usage = 228
+  32:ten_squares.c **** 	draw_string( 0, 0, "Click right" );
+ 452               		.loc 1 32 0
+ 453 001e 0E94 0000 		call clear_screen
+ 454               	.LVL36:
+  33:ten_squares.c **** 	draw_string( 0, 8, "to play 10 sq." );
+ 455               		.loc 1 33 0
+ 456 0022 40E0      		ldi r20,lo8(.LC3)
+ 457 0024 50E0      		ldi r21,hi8(.LC3)
+ 458 0026 60E0      		ldi r22,0
+ 459 0028 80E0      		ldi r24,0
+ 460 002a 0E94 0000 		call draw_string
+ 461               	.LVL37:
+  34:ten_squares.c **** 	show_screen();
+ 462               		.loc 1 34 0
+ 463 002e 40E0      		ldi r20,lo8(.LC4)
+ 464 0030 50E0      		ldi r21,hi8(.LC4)
+ 465 0032 68E0      		ldi r22,lo8(8)
+ 466 0034 80E0      		ldi r24,0
+ 467 0036 0E94 0000 		call draw_string
+ 468               	.LVL38:
+  35:ten_squares.c **** 	wait_until( pressed( SW1 ) );
+ 469               		.loc 1 35 0
+ 470 003a 0E94 0000 		call show_screen
+ 471               	.LVL39:
+ 472               	.L11:
+  36:ten_squares.c **** 	_delay_ms(100);
+ 473               		.loc 1 36 0 discriminator 1
+ 474 003e 7E9B      		sbis 0xf,6
+ 475 0040 00C0      		rjmp .L11
+ 476               	.LVL40:
+ 477               	.LBB17:
+ 478               	.LBB18:
+ 479               		.file 2 "/usr/avr/include/util/delay.h"
+   1:/usr/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
+   2:/usr/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
+   3:/usr/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
+   4:/usr/avr/include/util/delay.h ****    All rights reserved.
+   5:/usr/avr/include/util/delay.h **** 
+   6:/usr/avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
+   7:/usr/avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
+   8:/usr/avr/include/util/delay.h **** 
+   9:/usr/avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
+  10:/usr/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
+  11:/usr/avr/include/util/delay.h **** 
+  12:/usr/avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
+  13:/usr/avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
+  14:/usr/avr/include/util/delay.h ****      the documentation and/or other materials provided with the
+  15:/usr/avr/include/util/delay.h ****      distribution.
+  16:/usr/avr/include/util/delay.h **** 
+  17:/usr/avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
+  18:/usr/avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
+  19:/usr/avr/include/util/delay.h ****      from this software without specific prior written permission.
+  20:/usr/avr/include/util/delay.h **** 
+  21:/usr/avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  22:/usr/avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  23:/usr/avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+  24:/usr/avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+  25:/usr/avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+  26:/usr/avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+  27:/usr/avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+  28:/usr/avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+  29:/usr/avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+  30:/usr/avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  31:/usr/avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
+  32:/usr/avr/include/util/delay.h **** 
+  33:/usr/avr/include/util/delay.h **** /* $Id: delay.h.in 2506 2016-02-08 10:05:45Z joerg_wunsch $ */
+  34:/usr/avr/include/util/delay.h **** 
+  35:/usr/avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
+  36:/usr/avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
+  37:/usr/avr/include/util/delay.h **** 
+  38:/usr/avr/include/util/delay.h **** #ifndef __DOXYGEN__
+  39:/usr/avr/include/util/delay.h **** #  ifndef __HAS_DELAY_CYCLES
+  40:/usr/avr/include/util/delay.h **** #    define __HAS_DELAY_CYCLES 1
+  41:/usr/avr/include/util/delay.h **** #  endif
+  42:/usr/avr/include/util/delay.h **** #endif  /* __DOXYGEN__ */
+  43:/usr/avr/include/util/delay.h **** 
+  44:/usr/avr/include/util/delay.h **** #include <inttypes.h>
+  45:/usr/avr/include/util/delay.h **** #include <util/delay_basic.h>
+  46:/usr/avr/include/util/delay.h **** #include <math.h>
+  47:/usr/avr/include/util/delay.h **** 
+  48:/usr/avr/include/util/delay.h **** /** \file */
+  49:/usr/avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
+  50:/usr/avr/include/util/delay.h ****     \code
+  51:/usr/avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
+  52:/usr/avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
+  53:/usr/avr/include/util/delay.h ****     #include <util/delay.h>
+  54:/usr/avr/include/util/delay.h ****     \endcode
+  55:/usr/avr/include/util/delay.h **** 
+  56:/usr/avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
+  57:/usr/avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
+  58:/usr/avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
+  59:/usr/avr/include/util/delay.h ****     used.
+  60:/usr/avr/include/util/delay.h **** 
+  61:/usr/avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
+  62:/usr/avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
+  63:/usr/avr/include/util/delay.h ****     convenience functions where actual time values can be specified
+  64:/usr/avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
+  65:/usr/avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
+  66:/usr/avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
+  67:/usr/avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
+  68:/usr/avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
+  69:/usr/avr/include/util/delay.h **** 
+  70:/usr/avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
+  71:/usr/avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
+  72:/usr/avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
+  73:/usr/avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
+  74:/usr/avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
+  75:/usr/avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
+  76:/usr/avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
+  77:/usr/avr/include/util/delay.h ****     routines linked into the application.
+  78:/usr/avr/include/util/delay.h **** 
+  79:/usr/avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
+  80:/usr/avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
+  81:/usr/avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
+  82:/usr/avr/include/util/delay.h **** 
+  83:/usr/avr/include/util/delay.h **** */
+  84:/usr/avr/include/util/delay.h **** 
+  85:/usr/avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
+  86:/usr/avr/include/util/delay.h **** static __inline__ void _delay_us(double __us) __attribute__((__always_inline__));
+  87:/usr/avr/include/util/delay.h **** static __inline__ void _delay_ms(double __ms) __attribute__((__always_inline__));
+  88:/usr/avr/include/util/delay.h **** #endif
+  89:/usr/avr/include/util/delay.h **** 
+  90:/usr/avr/include/util/delay.h **** #ifndef F_CPU
+  91:/usr/avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
+  92:/usr/avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
+  93:/usr/avr/include/util/delay.h **** /** \ingroup util_delay
+  94:/usr/avr/include/util/delay.h ****     \def F_CPU
+  95:/usr/avr/include/util/delay.h ****     \brief CPU frequency in Hz
+  96:/usr/avr/include/util/delay.h **** 
+  97:/usr/avr/include/util/delay.h ****     The macro F_CPU specifies the CPU frequency to be considered by
+  98:/usr/avr/include/util/delay.h ****     the delay macros.  This macro is normally supplied by the
+  99:/usr/avr/include/util/delay.h ****     environment (e.g. from within a project header, or the project's
+ 100:/usr/avr/include/util/delay.h ****     Makefile).  The value 1 MHz here is only provided as a "vanilla"
+ 101:/usr/avr/include/util/delay.h ****     fallback if no such user-provided definition could be found.
+ 102:/usr/avr/include/util/delay.h **** 
+ 103:/usr/avr/include/util/delay.h ****     In terms of the delay functions, the CPU frequency can be given as
+ 104:/usr/avr/include/util/delay.h ****     a floating-point constant (e.g. 3.6864E6 for 3.6864 MHz).
+ 105:/usr/avr/include/util/delay.h ****     However, the macros in <util/setbaud.h> require it to be an
+ 106:/usr/avr/include/util/delay.h ****     integer value.
+ 107:/usr/avr/include/util/delay.h ****  */
+ 108:/usr/avr/include/util/delay.h **** # define F_CPU 1000000UL
+ 109:/usr/avr/include/util/delay.h **** #endif
+ 110:/usr/avr/include/util/delay.h **** 
+ 111:/usr/avr/include/util/delay.h **** #ifndef __OPTIMIZE__
+ 112:/usr/avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
+ 113:/usr/avr/include/util/delay.h **** #endif
+ 114:/usr/avr/include/util/delay.h **** 
+ 115:/usr/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 116:/usr/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 117:/usr/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 118:/usr/avr/include/util/delay.h **** #  include <math.h>
+ 119:/usr/avr/include/util/delay.h **** #endif
+ 120:/usr/avr/include/util/delay.h **** 
+ 121:/usr/avr/include/util/delay.h **** /**
+ 122:/usr/avr/include/util/delay.h ****    \ingroup util_delay
+ 123:/usr/avr/include/util/delay.h **** 
+ 124:/usr/avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
+ 125:/usr/avr/include/util/delay.h **** 
+ 126:/usr/avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
+ 127:/usr/avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
+ 128:/usr/avr/include/util/delay.h **** 
+ 129:/usr/avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
+ 130:/usr/avr/include/util/delay.h **** 
+ 131:/usr/avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
+ 132:/usr/avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
+ 133:/usr/avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
+ 134:/usr/avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
+ 135:/usr/avr/include/util/delay.h ****    user will not be informed about decreased resolution.
+ 136:/usr/avr/include/util/delay.h **** 
+ 137:/usr/avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles()
+ 138:/usr/avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
+ 139:/usr/avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
+ 140:/usr/avr/include/util/delay.h ****    no delay i.e., 0ms.
+ 141:/usr/avr/include/util/delay.h **** 
+ 142:/usr/avr/include/util/delay.h ****    Conversion of \c __ms into clock cycles may not always result in
+ 143:/usr/avr/include/util/delay.h ****    integer.  By default, the clock cycles rounded up to next
+ 144:/usr/avr/include/util/delay.h ****    integer. This ensures that the user gets at least \c __ms
+ 145:/usr/avr/include/util/delay.h ****    microseconds of delay.
+ 146:/usr/avr/include/util/delay.h **** 
+ 147:/usr/avr/include/util/delay.h ****    Alternatively, by defining the macro \c __DELAY_ROUND_DOWN__, or
+ 148:/usr/avr/include/util/delay.h ****    \c __DELAY_ROUND_CLOSEST__, before including this header file, the
+ 149:/usr/avr/include/util/delay.h ****    algorithm can be made to round down, or round to closest integer,
+ 150:/usr/avr/include/util/delay.h ****    respectively.
+ 151:/usr/avr/include/util/delay.h **** 
+ 152:/usr/avr/include/util/delay.h ****    \note
+ 153:/usr/avr/include/util/delay.h **** 
+ 154:/usr/avr/include/util/delay.h ****    The implementation of _delay_ms() based on
+ 155:/usr/avr/include/util/delay.h ****    __builtin_avr_delay_cycles() is not backward compatible with older
+ 156:/usr/avr/include/util/delay.h ****    implementations.  In order to get functionality backward compatible
+ 157:/usr/avr/include/util/delay.h ****    with previous versions, the macro \c "__DELAY_BACKWARD_COMPATIBLE__"
+ 158:/usr/avr/include/util/delay.h ****    must be defined before including this header file. Also, the
+ 159:/usr/avr/include/util/delay.h ****    backward compatible algorithm will be chosen if the code is
+ 160:/usr/avr/include/util/delay.h ****    compiled in a <em>freestanding environment</em> (GCC option
+ 161:/usr/avr/include/util/delay.h ****    \c -ffreestanding), as the math functions required for rounding are
+ 162:/usr/avr/include/util/delay.h ****    not available to the compiler then.
+ 163:/usr/avr/include/util/delay.h **** 
+ 164:/usr/avr/include/util/delay.h ****  */
+ 165:/usr/avr/include/util/delay.h **** void
+ 166:/usr/avr/include/util/delay.h **** _delay_ms(double __ms)
+ 167:/usr/avr/include/util/delay.h **** {
+ 168:/usr/avr/include/util/delay.h **** 	double __tmp ;
+ 169:/usr/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
+ 170:/usr/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
+ 171:/usr/avr/include/util/delay.h ****   __STDC_HOSTED__
+ 172:/usr/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
+ 173:/usr/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
+ 174:/usr/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
+ 175:/usr/avr/include/util/delay.h **** 
+ 176:/usr/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
+ 177:/usr/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
+ 178:/usr/avr/include/util/delay.h **** 
+ 179:/usr/avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
+ 180:/usr/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
+ 181:/usr/avr/include/util/delay.h **** 
+ 182:/usr/avr/include/util/delay.h **** 	#else
+ 183:/usr/avr/include/util/delay.h **** 		//round up by default
+ 184:/usr/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+ 185:/usr/avr/include/util/delay.h **** 	#endif
+ 186:/usr/avr/include/util/delay.h **** 
+ 187:/usr/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
+ 480               		.loc 2 187 0
+ 481 0042 2FEF      		ldi r18,lo8(159999)
+ 482 0044 80E7      		ldi r24,hi8(159999)
+ 483 0046 92E0      		ldi r25,hlo8(159999)
+ 484 0048 2150      	1:	subi r18,1
+ 485 004a 8040      		sbci r24,0
+ 486 004c 9040      		sbci r25,0
+ 487 004e 01F4      		brne 1b
+ 488 0050 00C0      		rjmp .
+ 489 0052 0000      		nop
+ 490               	.L12:
+ 491               	.LBE18:
+ 492               	.LBE17:
+  38:ten_squares.c **** 
+ 493               		.loc 1 38 0 discriminator 1
+ 494 0054 7E99      		sbic 0xf,6
+ 495 0056 00C0      		rjmp .L12
+ 496               	.LVL41:
+ 497               	.LBB19:
+ 498               	.LBB20:
+ 499               		.loc 2 187 0
+ 500 0058 2FEF      		ldi r18,lo8(799999)
+ 501 005a 84E3      		ldi r24,hi8(799999)
+ 502 005c 9CE0      		ldi r25,hlo8(799999)
+ 503 005e 2150      	1:	subi r18,1
+ 504 0060 8040      		sbci r24,0
+ 505 0062 9040      		sbci r25,0
+ 506 0064 01F4      		brne 1b
+ 507 0066 00C0      		rjmp .
+ 508 0068 0000      		nop
+ 509               	.LVL42:
+ 510               	.LBE20:
+ 511               	.LBE19:
+  78:ten_squares.c **** 	byte widths[] = { 8, 5, 12 };
+ 512               		.loc 1 78 0
+ 513 006a 86E0      		ldi r24,lo8(6)
+ 514 006c E0E0      		ldi r30,lo8(.LC5)
+ 515 006e F0E0      		ldi r31,hi8(.LC5)
+ 516 0070 DE01      		movw r26,r28
+ 517 0072 AD52      		subi r26,45
+ 518 0074 BF4F      		sbci r27,-1
+ 519               		0:
+ 520 0076 0190      		ld r0,Z+
+ 521 0078 0D92      		st X+,r0
+ 522 007a 8A95      		dec r24
+ 523 007c 01F4      		brne 0b
+  79:ten_squares.c **** 	byte heights[] = { 8, 5, 8 };
+ 524               		.loc 1 79 0
+ 525 007e 8091 0000 		lds r24,.LC1
+ 526 0082 9091 0000 		lds r25,.LC1+1
+ 527 0086 A091 0000 		lds r26,.LC1+2
+ 528 008a C452      		subi r28,lo8(-220)
+ 529 008c DF4F      		sbci r29,hi8(-220)
+ 530 008e 8883      		st Y,r24
+ 531 0090 9983      		std Y+1,r25
+ 532 0092 AA83      		std Y+2,r26
+ 533 0094 CC5D      		subi r28,lo8(220)
+ 534 0096 D040      		sbci r29,hi8(220)
+  80:ten_squares.c **** 
+ 535               		.loc 1 80 0
+ 536 0098 8091 0000 		lds r24,.LC2
+ 537 009c 9091 0000 		lds r25,.LC2+1
+ 538 00a0 A091 0000 		lds r26,.LC2+2
+ 539 00a4 C752      		subi r28,lo8(-217)
+ 540 00a6 DF4F      		sbci r29,hi8(-217)
+ 541 00a8 8883      		st Y,r24
+ 542 00aa 9983      		std Y+1,r25
+ 543 00ac AA83      		std Y+2,r26
+ 544 00ae C95D      		subi r28,lo8(217)
+ 545 00b0 D040      		sbci r29,hi8(217)
+  85:ten_squares.c **** 
+ 546               		.loc 1 85 0
+ 547 00b2 69E8      		ldi r22,lo8(-119)
+ 548 00b4 74E5      		ldi r23,lo8(84)
+ 549 00b6 8FE4      		ldi r24,lo8(79)
+ 550 00b8 90E0      		ldi r25,0
+ 551 00ba 0E94 0000 		call srandom
+ 552               	.LVL43:
+  87:ten_squares.c **** 		sprites, bitmaps, widths, heights, 
+ 553               		.loc 1 87 0
+ 554 00be 83E0      		ldi r24,lo8(3)
+ 555 00c0 E82E      		mov r14,r24
+ 556 00c2 F12C      		mov r15,__zero_reg__
+ 557 00c4 0AE0      		ldi r16,lo8(10)
+ 558 00c6 10E0      		ldi r17,0
+ 559 00c8 9E01      		movw r18,r28
+ 560 00ca 2752      		subi r18,39
+ 561 00cc 3F4F      		sbci r19,-1
+ 562 00ce AE01      		movw r20,r28
+ 563 00d0 4452      		subi r20,36
+ 564 00d2 5F4F      		sbci r21,-1
+ 565 00d4 BE01      		movw r22,r28
+ 566 00d6 6D52      		subi r22,45
+ 567 00d8 7F4F      		sbci r23,-1
+ 568 00da CE01      		movw r24,r28
+ 569 00dc 0196      		adiw r24,1
+ 570 00de 0E94 0000 		call setup_ten_squares
+ 571               	.LVL44:
+ 572               	.L13:
+  93:ten_squares.c **** 		clear_screen();
+ 573               		.loc 1 93 0
+ 574 00e2 7E9B      		sbis 0xf,6
+ 575 00e4 00C0      		rjmp .L14
+ 101:ten_squares.c **** 	draw_string( 0, 0, "Game Over" );
+ 576               		.loc 1 101 0
+ 577 00e6 0E94 0000 		call clear_screen
+ 578               	.LVL45:
+ 102:ten_squares.c **** 	show_screen();
+ 579               		.loc 1 102 0
+ 580 00ea 40E0      		ldi r20,lo8(.LC6)
+ 581 00ec 50E0      		ldi r21,hi8(.LC6)
+ 582 00ee 60E0      		ldi r22,0
+ 583 00f0 80E0      		ldi r24,0
+ 584 00f2 0E94 0000 		call draw_string
+ 585               	.LVL46:
+ 103:ten_squares.c **** 
+ 586               		.loc 1 103 0
+ 587 00f6 0E94 0000 		call show_screen
+ 588               	.LVL47:
+ 589               	.LBB21:
+ 590               	.LBB22:
+ 591               		.loc 2 187 0
+ 592 00fa 2FEF      		ldi r18,lo8(799999)
+ 593 00fc 84E3      		ldi r24,hi8(799999)
+ 594 00fe 9CE0      		ldi r25,hlo8(799999)
+ 595 0100 2150      	1:	subi r18,1
+ 596 0102 8040      		sbci r24,0
+ 597 0104 9040      		sbci r25,0
+ 598 0106 01F4      		brne 1b
+ 599 0108 00C0      		rjmp .
+ 600 010a 0000      		nop
+ 601               	.LVL48:
+ 602               	.LBE22:
+ 603               	.LBE21:
+ 106:ten_squares.c **** }
+ 604               		.loc 1 106 0
+ 605 010c 2A9A      		sbi 0x5,2
+ 606               	.L15:
+ 106:ten_squares.c **** }
+ 607               		.loc 1 106 0 is_stmt 0 discriminator 2
+ 608 010e 7E9B      		sbis 0xf,6
+ 609 0110 00C0      		rjmp .L15
+ 610               	.LVL49:
+ 611               	.LBB23:
+ 612               	.LBB24:
+ 613               		.loc 2 187 0 is_stmt 1
+ 614 0112 2FEF      		ldi r18,lo8(159999)
+ 615 0114 80E7      		ldi r24,hi8(159999)
+ 616 0116 92E0      		ldi r25,hlo8(159999)
+ 617 0118 2150      	1:	subi r18,1
+ 618 011a 8040      		sbci r24,0
+ 619 011c 9040      		sbci r25,0
+ 620 011e 01F4      		brne 1b
+ 621 0120 00C0      		rjmp .
+ 622 0122 0000      		nop
+ 623               	.LVL50:
+ 624               	.LBE24:
+ 625               	.LBE23:
+ 106:ten_squares.c **** }
+ 626               		.loc 1 106 0
+ 627 0124 2A98      		cbi 0x5,2
+ 628               	/* epilogue start */
+ 107:ten_squares.c **** 
+ 629               		.loc 1 107 0
+ 630 0126 C252      		subi r28,34
+ 631 0128 DF4F      		sbci r29,-1
+ 632 012a 0FB6      		in __tmp_reg__,__SREG__
+ 633 012c F894      		cli
+ 634 012e DEBF      		out __SP_H__,r29
+ 635 0130 0FBE      		out __SREG__,__tmp_reg__
+ 636 0132 CDBF      		out __SP_L__,r28
+ 637 0134 DF91      		pop r29
+ 638 0136 CF91      		pop r28
+ 639 0138 1F91      		pop r17
+ 640 013a 0F91      		pop r16
+ 641 013c FF90      		pop r15
+ 642 013e EF90      		pop r14
+ 643 0140 0895      		ret
+ 644               	.L14:
+  94:ten_squares.c **** 		update_ten_squares( sprites );
+ 645               		.loc 1 94 0
+ 646 0142 0E94 0000 		call clear_screen
+ 647               	.LVL51:
+  95:ten_squares.c **** 		draw_ten_squares( sprites );
+ 648               		.loc 1 95 0
+ 649 0146 CE01      		movw r24,r28
+ 650 0148 0196      		adiw r24,1
+ 651 014a 0E94 0000 		call update_ten_squares
+ 652               	.LVL52:
+  96:ten_squares.c **** 		show_screen();
+ 653               		.loc 1 96 0
+ 654 014e CE01      		movw r24,r28
+ 655 0150 0196      		adiw r24,1
+ 656 0152 0E94 0000 		call draw_ten_squares
+ 657               	.LVL53:
+  97:ten_squares.c **** 		_delay_ms( 50 );
+ 658               		.loc 1 97 0
+ 659 0156 0E94 0000 		call show_screen
+ 660               	.LVL54:
+ 661               	.LBB25:
+ 662               	.LBB26:
+ 663               		.loc 2 187 0
+ 664 015a 2FE7      		ldi r18,lo8(79999)
+ 665 015c 88E3      		ldi r24,hi8(79999)
+ 666 015e 91E0      		ldi r25,hlo8(79999)
+ 667 0160 2150      	1:	subi r18,1
+ 668 0162 8040      		sbci r24,0
+ 669 0164 9040      		sbci r25,0
+ 670 0166 01F4      		brne 1b
+ 671 0168 00C0      		rjmp .
+ 672 016a 0000      		nop
+ 673 016c 00C0      		rjmp .L13
+ 674               	.LBE26:
+ 675               	.LBE25:
+ 676               		.cfi_endproc
+ 677               	.LFE12:
+ 679               		.data
+ 682               	bitmap1.2248:
+ 683 0000 FF        		.byte	-1
+ 684 0001 81        		.byte	-127
+ 685 0002 81        		.byte	-127
+ 686 0003 81        		.byte	-127
+ 687 0004 81        		.byte	-127
+ 688 0005 81        		.byte	-127
+ 689 0006 81        		.byte	-127
+ 690 0007 FF        		.byte	-1
+ 693               	bitmap2.2249:
+ 694 0008 F8        		.byte	-8
+ 695 0009 88        		.byte	-120
+ 696 000a 88        		.byte	-120
+ 697 000b 88        		.byte	-120
+ 698 000c F8        		.byte	-8
+ 701               	bitmap3.2250:
+ 702 000d FF        		.byte	-1
+ 703 000e F0        		.byte	-16
+ 704 000f 80        		.byte	-128
+ 705 0010 10        		.byte	16
+ 706 0011 80        		.byte	-128
+ 707 0012 10        		.byte	16
+ 708 0013 80        		.byte	-128
+ 709 0014 10        		.byte	16
+ 710 0015 80        		.byte	-128
+ 711 0016 10        		.byte	16
+ 712 0017 80        		.byte	-128
+ 713 0018 10        		.byte	16
+ 714 0019 80        		.byte	-128
+ 715 001a 10        		.byte	16
+ 716 001b FF        		.byte	-1
+ 717 001c F0        		.byte	-16
+ 718               		.text
+ 719               	.Letext0:
+ 720               		.file 3 "/usr/avr/include/stdlib.h"
+ 721               		.file 4 "/usr/lib/gcc/avr/6.2.0/include/stddef.h"
+ 722               		.file 5 "/usr/avr/include/stdint.h"
+ 723               		.file 6 "/usr/avr/include/stdio.h"
+ 724               		.file 7 "byte.h"
+ 725               		.file 8 "../cab202_teensy/sprite.h"
+ 726               		.file 9 "../cab202_teensy/graphics.h"
+ 727               		.file 10 "../cab202_teensy/ascii_font.h"
+ 728               		.file 11 "/usr/avr/include/math.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ten_squares.c
+     /tmp/ccjwBUjE.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccjwBUjE.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccjwBUjE.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccjwBUjE.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccjwBUjE.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccjwBUjE.s:16     .text.setup_ten_squares:0000000000000000 setup_ten_squares
+     /tmp/ccjwBUjE.s:273    .text.update_ten_squares:0000000000000000 update_ten_squares
+     /tmp/ccjwBUjE.s:330    .text.draw_ten_squares:0000000000000000 draw_ten_squares
+     /tmp/ccjwBUjE.s:682    .data:0000000000000000 bitmap1.2248
+     /tmp/ccjwBUjE.s:693    .data:0000000000000008 bitmap2.2249
+     /tmp/ccjwBUjE.s:701    .data:000000000000000d bitmap3.2250
+     /tmp/ccjwBUjE.s:407    .text.play_ten_squares:0000000000000000 play_ten_squares
+
+UNDEFINED SYMBOLS
+__floatsisf
+__addsf3
+__mulsf3
+__divmodhi4
+init_sprite
+random
+cos
+sin
+update_one_square
+draw_sprite
+clear_screen
+draw_string
+show_screen
+srandom
+__do_copy_data

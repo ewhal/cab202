@@ -1,0 +1,186 @@
+   1               		.file	"sprite_demo.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               		.section	.text.setup_device,"ax",@progbits
+  11               	.global	setup_device
+  13               	setup_device:
+  14               	.LFB8:
+  15               		.file 1 "sprite_demo.c"
+   1:sprite_demo.c **** /*
+   2:sprite_demo.c **** *	File:	sprite_demo.c
+   3:sprite_demo.c **** *	Author: Lawrence Buckingham, Queensland University of Technology.
+   4:sprite_demo.c **** *	Date:	27 April 2015.
+   5:sprite_demo.c **** *
+   6:sprite_demo.c **** *	Entry point for the sprite demo program.
+   7:sprite_demo.c **** */
+   8:sprite_demo.c **** 
+   9:sprite_demo.c **** #include <avr/io.h> 
+  10:sprite_demo.c **** #include <util/delay.h> 
+  11:sprite_demo.c **** #include <graphics.h>
+  12:sprite_demo.c **** #include <avr/io.h>
+  13:sprite_demo.c **** #include <stdint.h>
+  14:sprite_demo.c **** #include <avr/interrupt.h>
+  15:sprite_demo.c **** #include <util/delay.h>
+  16:sprite_demo.c **** 
+  17:sprite_demo.c **** #include "cpu_speed.h"
+  18:sprite_demo.c **** #include "friendly_ports.h"
+  19:sprite_demo.c **** #include "one_square.h"
+  20:sprite_demo.c **** #include "ten_squares.h"
+  21:sprite_demo.c **** #include "blockhead.h"
+  22:sprite_demo.c **** 
+  23:sprite_demo.c **** void setup_device(void);
+  24:sprite_demo.c **** 
+  25:sprite_demo.c **** int main(void) {
+  26:sprite_demo.c **** 	setup_device();
+  27:sprite_demo.c **** 
+  28:sprite_demo.c **** 	draw_string(0, 0, "Hello CAB202!!!");
+  29:sprite_demo.c **** 	show_screen();
+  30:sprite_demo.c **** 
+  31:sprite_demo.c **** 	while ( 1 ) {
+  32:sprite_demo.c **** 		play_one_square();
+  33:sprite_demo.c **** 		play_ten_squares();
+  34:sprite_demo.c **** 		walk_the_walk();
+  35:sprite_demo.c **** 	}
+  36:sprite_demo.c **** 
+  37:sprite_demo.c **** 	return 0;
+  38:sprite_demo.c **** }
+  39:sprite_demo.c **** 
+  40:sprite_demo.c **** void setup_device(void) {
+  16               		.loc 1 40 0
+  17               		.cfi_startproc
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  41:sprite_demo.c **** 	set_clock_speed(CPU_8MHz);
+  22               		.loc 1 41 0
+  23 0000 E1E6      		ldi r30,lo8(97)
+  24 0002 F0E0      		ldi r31,0
+  25 0004 80E8      		ldi r24,lo8(-128)
+  26 0006 8083      		st Z,r24
+  27 0008 81E0      		ldi r24,lo8(1)
+  28 000a 8083      		st Z,r24
+  42:sprite_demo.c **** 
+  43:sprite_demo.c **** 	/**
+  44:sprite_demo.c **** 	* Configure the appropriate data direction register (DDR) to output to the LEDS
+  45:sprite_demo.c **** 	* 	- The LEDs are both on port B (with LED0 on pin 2 and LED1 on pin 3) (see QUT Teensy schematic 
+  46:sprite_demo.c **** 	*	- Therefore, must configure DDR for port B (defined by DDRB from avr/io.h) to output on pins 2 a
+  47:sprite_demo.c **** 	*/
+  48:sprite_demo.c **** 
+  49:sprite_demo.c **** 	// Note that the symbolic names SW1, SW2, LED0, LED1, LED2 
+  50:sprite_demo.c **** 	// are defined in friendly_ports.h
+  51:sprite_demo.c **** 	DDRB = (LED0 | LED1); // Output to LEDs.
+  29               		.loc 1 51 0
+  30 000c 8CE0      		ldi r24,lo8(12)
+  31 000e 84B9      		out 0x4,r24
+  52:sprite_demo.c **** 	DDRF = ~(SW1 | SW2);  // Output to LEDs, input from buttons.
+  32               		.loc 1 52 0
+  33 0010 8FE9      		ldi r24,lo8(-97)
+  34 0012 80BB      		out 0x10,r24
+  53:sprite_demo.c **** 	DDRD = LED2;          // Turn on the little yellow LED.
+  35               		.loc 1 53 0
+  36 0014 80E4      		ldi r24,lo8(64)
+  37 0016 8AB9      		out 0xa,r24
+  54:sprite_demo.c **** 
+  55:sprite_demo.c **** 	// Turn everything off to start with
+  56:sprite_demo.c **** 	PORTB = 0x00;
+  38               		.loc 1 56 0
+  39 0018 15B8      		out 0x5,__zero_reg__
+  57:sprite_demo.c **** 	PORTD = 0x00;
+  40               		.loc 1 57 0
+  41 001a 1BB8      		out 0xb,__zero_reg__
+  58:sprite_demo.c **** 
+  59:sprite_demo.c **** 	lcd_init(LCD_DEFAULT_CONTRAST);
+  42               		.loc 1 59 0
+  43 001c 8FE3      		ldi r24,lo8(63)
+  44 001e 0E94 0000 		call lcd_init
+  45               	.LVL0:
+  60:sprite_demo.c **** 	clear_screen();
+  46               		.loc 1 60 0
+  47 0022 0C94 0000 		jmp clear_screen
+  48               	.LVL1:
+  49               		.cfi_endproc
+  50               	.LFE8:
+  52               		.section	.rodata.str1.1,"aMS",@progbits,1
+  53               	.LC0:
+  54 0000 4865 6C6C 		.string	"Hello CAB202!!!"
+  54      6F20 4341 
+  54      4232 3032 
+  54      2121 2100 
+  55               		.section	.text.startup.main,"ax",@progbits
+  56               	.global	main
+  58               	main:
+  59               	.LFB7:
+  25:sprite_demo.c **** 	setup_device();
+  60               		.loc 1 25 0
+  61               		.cfi_startproc
+  62               	/* prologue: function */
+  63               	/* frame size = 0 */
+  64               	/* stack size = 0 */
+  65               	.L__stack_usage = 0
+  26:sprite_demo.c **** 
+  66               		.loc 1 26 0
+  67 0000 0E94 0000 		call setup_device
+  68               	.LVL2:
+  28:sprite_demo.c **** 	show_screen();
+  69               		.loc 1 28 0
+  70 0004 40E0      		ldi r20,lo8(.LC0)
+  71 0006 50E0      		ldi r21,hi8(.LC0)
+  72 0008 60E0      		ldi r22,0
+  73 000a 80E0      		ldi r24,0
+  74 000c 0E94 0000 		call draw_string
+  75               	.LVL3:
+  29:sprite_demo.c **** 
+  76               		.loc 1 29 0
+  77 0010 0E94 0000 		call show_screen
+  78               	.LVL4:
+  79               	.L3:
+  32:sprite_demo.c **** 		play_ten_squares();
+  80               		.loc 1 32 0 discriminator 1
+  81 0014 0E94 0000 		call play_one_square
+  82               	.LVL5:
+  33:sprite_demo.c **** 		walk_the_walk();
+  83               		.loc 1 33 0 discriminator 1
+  84 0018 0E94 0000 		call play_ten_squares
+  85               	.LVL6:
+  34:sprite_demo.c **** 	}
+  86               		.loc 1 34 0 discriminator 1
+  87 001c 0E94 0000 		call walk_the_walk
+  88               	.LVL7:
+  89 0020 00C0      		rjmp .L3
+  90               		.cfi_endproc
+  91               	.LFE7:
+  93               		.text
+  94               	.Letext0:
+  95               		.file 2 "../cab202_teensy/lcd.h"
+  96               		.file 3 "../cab202_teensy/graphics.h"
+  97               		.file 4 "one_square.h"
+  98               		.file 5 "ten_squares.h"
+  99               		.file 6 "blockhead.h"
+ 100               		.file 7 "/usr/avr/include/stdint.h"
+ 101               		.file 8 "../cab202_teensy/ascii_font.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sprite_demo.c
+     /tmp/ccVMlUvu.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccVMlUvu.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccVMlUvu.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccVMlUvu.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccVMlUvu.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccVMlUvu.s:13     .text.setup_device:0000000000000000 setup_device
+     /tmp/ccVMlUvu.s:58     .text.startup.main:0000000000000000 main
+
+UNDEFINED SYMBOLS
+lcd_init
+clear_screen
+draw_string
+show_screen
+play_one_square
+play_ten_squares
+walk_the_walk
+__do_copy_data
