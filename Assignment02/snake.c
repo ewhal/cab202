@@ -7,31 +7,21 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 
 
-int lives = 3;
-int score = 0;
+char lives = 3;
+char score = 0;
 
 void draw_score() {
-    clear_screen();
     char buffer[80];
-    sprintf(buffer, "%2d (%d)", score, lives);
+    sprintf(buffer, "%02d (%d)", score, lives);
     draw_string(0, 0, buffer);
-    show_screen();
 
 }
 
 int main() {
-    set_clock_speed(CPU_8MHz);
-    lcd_init(LCD_DEFAULT_CONTRAST);
-
-
-    
- //   sprite_id snake;
-//    snake = sprite_init(snake, 1, 1, 1, 1,  )
-
-
     // SW0 and SW1 are connected to pins F6 and F5. Configure all pins as Input(0)
     DDRF = 0b00000000;
     DDRD = 0b00000000;
@@ -59,50 +49,85 @@ int main() {
     show_screen();
     _delay_ms(2000);
     clear_screen();
+    srand(0x20);
+
+
+
     Sprite snake;
-    init_sprite(&snake, 5.0, 1.0, 1, 1, '*');
+    Sprite food;
+    unsigned char snake_bitmap [] = {
+        0b11100000,
+        0b11100000,
+    };
+    unsigned char food_bitmap [] = {
+        0b11100000,
+        0b11100000,
+        0b11100000,
+
+    };
+    int x = rand() % LCD_X;
+    int y = rand() % LCD_Y;
+    init_sprite(&snake, 5.0, 25.0, 3, 2, snake_bitmap);
+    init_sprite(&food, x, y, 3, 3, food_bitmap);
+    snake.dx = 1;
+    snake.dy = 1;
 
 
     while(1){
+        clear_screen();
         draw_score();
         draw_sprite(&snake);
+        draw_sprite(&food);
 
-        // Read input from PORTF.
-        // if Pin F5 changes to high then if condition is true and 
-        // an output is ent to Port B pin 2
+
+        //sw2
         if(PINF & 0b01000000 ){
-            // Send output to PORTB.
-            PORTB = 0b0000100;
         }
+        //sw3
         if(PINF & 0b00100000 ){
-            // Send output to PORTB.
-            PORTB = 0b0001000;
         }
+
+        // top sw1
         if(PIND & 0b00000010 ){
-            // Send output to PORTB.
-            PORTB = 0b0001100;
+            snake.y -= snake.dy; 
         }
+        
+        // right sw1
         if(PIND & 0b00000001 ){
-            // Send output to PORTB.
-            PORTB = 0b0001000;
+            snake.x += snake.dx; 
         }
+        // left sw1
         if(PINB & 0b00000010 ){
-            // Send output to PORTB.
-            PORTB = 0b0000100;
+            snake.x -= snake.dx; 
         }
+        //center sw1
         if(PINB & 0b00000001 ){
-            // Send output to PORTB.
-            PORTB = 0b0000000;
-            PORTB = 0b0001100;
-            _delay_ms(500);
         }
 
-
-
+        // bottom sw1
         if(PINB & 0b10000000 ){
-            // Send output to PORTB.
-            PORTB = 0b0000000;
+            snake.y += snake.dy; 
         }
+        if (snake.x == -1) {
+            snake.x = 84;
+        }
+        if (snake.x == 85) {
+            snake.x = 0;
+
+        }
+        if (snake.y == 3) {
+            snake.y = 48;
+        }
+        if (snake.y == 49) {
+            snake.y = 4;
+        }
+
+        if (snake.y == food.y && snake.x == food.x) {
+            score++;
+
+        }
+        show_screen();
+        _delay_ms(50);
 
 
 
