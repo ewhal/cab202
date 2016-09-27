@@ -19,6 +19,21 @@ void draw_score() {
     sprintf(buffer, "%02d (%d)", score, lives);
     draw_string(0, 0, buffer);
 
+
+}
+
+void respawn_food(Sprite *food, int seed) {
+    srand(seed);
+
+    food->x = rand() % LCD_X;
+    food->y = rand() % LCD_Y;
+}
+
+void snake_step(Sprite *snake) {
+    snake->x += snake->dx;
+    snake->y += snake->dy;
+
+
 }
 
 int main() {
@@ -49,28 +64,29 @@ int main() {
     show_screen();
     _delay_ms(2000);
     clear_screen();
-    srand(0x20);
 
 
 
-    Sprite snake;
-    Sprite food;
     unsigned char snake_bitmap [] = {
         0b11100000,
         0b11100000,
     };
+
+    Sprite snake;
+    Sprite food;
+    init_sprite(&snake, 5.0, 25.0, 3, 2, snake_bitmap);
+    snake.dx = 1;
+    snake.dy = 0;
+
     unsigned char food_bitmap [] = {
         0b11100000,
         0b11100000,
         0b11100000,
 
     };
-    int x = rand() % LCD_X;
-    int y = rand() % LCD_Y;
-    init_sprite(&snake, 5.0, 25.0, 3, 2, snake_bitmap);
-    init_sprite(&food, x, y, 3, 3, food_bitmap);
-    snake.dx = 1;
-    snake.dy = 1;
+
+
+    init_sprite(&food, 42, 12, 3, 3, food_bitmap);
 
 
     while(1){
@@ -89,16 +105,19 @@ int main() {
 
         // top sw1
         if(PIND & 0b00000010 ){
-            snake.y -= snake.dy; 
+            snake.dy = -1;
+            snake.dx = 0;
         }
         
         // right sw1
         if(PIND & 0b00000001 ){
-            snake.x += snake.dx; 
+            snake.dy = 0;
+            snake.dx = 1;
         }
         // left sw1
         if(PINB & 0b00000010 ){
-            snake.x -= snake.dx; 
+            snake.dy = 0;
+            snake.dx = -1;
         }
         //center sw1
         if(PINB & 0b00000001 ){
@@ -106,7 +125,8 @@ int main() {
 
         // bottom sw1
         if(PINB & 0b10000000 ){
-            snake.y += snake.dy; 
+            snake.dy = 1;
+            snake.dx = 0;
         }
         if (snake.x == -1) {
             snake.x = 84;
@@ -124,8 +144,10 @@ int main() {
 
         if (snake.y == food.y && snake.x == food.x) {
             score++;
+            respawn_food(&food, score);
 
         }
+        snake_step(&snake);
         show_screen();
         _delay_ms(50);
 
