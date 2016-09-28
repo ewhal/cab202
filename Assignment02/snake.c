@@ -18,20 +18,65 @@ void draw_score() {
     char buffer[80];
     sprintf(buffer, "%02d (%d)", score, lives);
     draw_string(0, 0, buffer);
-
-
 }
 
-void respawn_food(Sprite *food, int seed) {
+void respawn_food(Sprite *food, Sprite *snake, int seed) {
     srand(seed);
 
-    food->x = rand() % LCD_X;
-    food->y = rand() % LCD_Y;
+    char x = rand() % LCD_X;
+    char y = rand() % LCD_Y;
+
+    for (int i = 1; i <= 2+score; i++) {
+        if ((x == snake[i].x && y == snake[i].y )|| y <= 7 || y >= 48 || x <=  3 || x >= 49) {
+
+
+            respawn_food(food, snake, seed+seed+seed);
+
+        }
+    }
+
+    food->x = x;
+    food->y = y;
+
+
 }
 
-void snake_step(Sprite *snake) {
-    snake->x += snake->dx;
-    snake->y += snake->dy;
+void snake_step(Sprite * snake, char new_game) {
+
+    for (int i = 1; i <= 2+score; i++) {
+        if (snake[0].x == snake[i].x && snake[0].y == snake[i].y && new_game == 0) {
+
+            lives--;
+
+            /*
+            snake = (Sprite*) realloc(snake, (2*sizeof(Sprite)));
+
+            char x = rand() % LCD_X;
+            char y = rand() % LCD_Y;
+            unsigned char snake_bitmap [] = {
+                0b11100000,
+                0b11100000,
+            };
+
+
+            init_sprite(&snake[0], x, y, 3, 2, snake_bitmap);
+            init_sprite(&snake[1], x-4, y, 3, 2, snake_bitmap);
+            snake[0].dx = 0;
+            snake[0].dy = 0;
+            */
+
+
+        }
+    }
+    for (int k = 2+score; k > 0; k--){ 
+        snake[k].x = snake[k-1].x;
+        snake[k].y = snake[k-1].y;
+
+    }
+
+
+    snake[0].x += snake[0].dx;
+    snake[0].y += snake[0].dy;
 
 
 }
@@ -72,11 +117,19 @@ int main() {
         0b11100000,
     };
 
-    Sprite snake;
+    Sprite *snake;
     Sprite food;
-    init_sprite(&snake, 5.0, 25.0, 3, 2, snake_bitmap);
-    snake.dx = 1;
-    snake.dy = 0;
+    char new_game = 1;
+
+   snake = (Sprite*) malloc(2 * sizeof(Sprite));
+
+
+   init_sprite(&snake[0], 5.0, 25.0, 3, 2, snake_bitmap);
+   init_sprite(&snake[1], 1.0, 25.0, 3, 2, snake_bitmap);
+   snake[0].dx = 0;
+   snake[0].dy = 0;
+
+
 
     unsigned char food_bitmap [] = {
         0b11100000,
@@ -89,10 +142,12 @@ int main() {
     init_sprite(&food, 42, 12, 3, 3, food_bitmap);
 
 
-    while(1){
+    while(lives != -1){
         clear_screen();
         draw_score();
-        draw_sprite(&snake);
+        for (int i = 0; i < 2+score; i++) {
+            draw_sprite(&snake[i]);
+        }
         draw_sprite(&food);
 
 
@@ -105,19 +160,22 @@ int main() {
 
         // top sw1
         if(PIND & 0b00000010 ){
-            snake.dy = -1;
-            snake.dx = 0;
+            snake[0].dy = -1;
+            snake[0].dx = 0;
+            new_game = 1;
         }
         
         // right sw1
         if(PIND & 0b00000001 ){
-            snake.dy = 0;
-            snake.dx = 1;
+            snake[0].dy = 0;
+            snake[0].dx = 1;
+            new_game = 1;
         }
         // left sw1
         if(PINB & 0b00000010 ){
-            snake.dy = 0;
-            snake.dx = -1;
+            snake[0].dy = 0;
+            snake[0].dx = -1;
+            new_game = 1;
         }
         //center sw1
         if(PINB & 0b00000001 ){
@@ -125,31 +183,35 @@ int main() {
 
         // bottom sw1
         if(PINB & 0b10000000 ){
-            snake.dy = 1;
-            snake.dx = 0;
+            snake[0].dy = 1;
+            snake[0].dx = 0;
+            new_game = 1;
         }
-        if (snake.x == -1) {
-            snake.x = 84;
+        if (snake[0].x == -1) {
+            snake[0].x = 84;
         }
-        if (snake.x == 85) {
-            snake.x = 0;
+        if (snake[0].x == 85) {
+            snake[0].x = 0;
 
         }
-        if (snake.y == 3) {
-            snake.y = 48;
+        if (snake[0].y == 7) {
+            snake[0].y = 48;
         }
-        if (snake.y == 49) {
-            snake.y = 4;
+        if (snake[0].y == 49) {
+            snake[0].y = 8;
         }
 
-        if (snake.y == food.y && snake.x == food.x) {
+        if (snake[0].y == food.y && snake[0].x == food.x) {
             score++;
-            respawn_food(&food, score);
+            respawn_food(&food, snake, score);
+            snake = (Sprite*) realloc(snake, (2+score)*sizeof(Sprite));
+
+            init_sprite(&snake[1+score], snake[1].x, snake[1].y, 3, 2, snake_bitmap);
 
         }
-        snake_step(&snake);
+        snake_step(snake, new_game);
         show_screen();
-        _delay_ms(50);
+        _delay_ms(100);
 
 
 
