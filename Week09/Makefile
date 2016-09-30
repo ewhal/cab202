@@ -1,3 +1,4 @@
+#b
 #
 # 	CAB202 Tutorial 8
 #	Generic Makefile for compiling with floating point printf
@@ -7,8 +8,8 @@
 #
 
 # Modify these
-SRC=solution_3
-CAB202_LIB_DIR=../../libs/cab202_teensy
+SRC=question_1
+CAB202_LIB_DIR=../cab202_teensy
 
 # The rest should be all good as is
 FLAGS=-mmcu=atmega32u4 -Os -DF_CPU=8000000UL -std=gnu99 -Wall -Werror
