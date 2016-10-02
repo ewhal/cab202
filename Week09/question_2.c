@@ -83,7 +83,6 @@ unsigned char set_inversion(unsigned char current) {
 	// Set the inversion mode to the opposite of what it currently is
 	// TODO
 
-	// Return the opposite (i.e. the mode that we just set above)
 	return 0; // TODO - it is not return 0....
 }
 
