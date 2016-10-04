@@ -20,6 +20,7 @@ char new_game = 1;
 
 Sprite *snake;
 Sprite food;
+
 unsigned char snake_bitmap [] = {
     0b01000000,
     0b11100000,
@@ -133,7 +134,6 @@ int main() {
 
    snake = (Sprite*) malloc(2 * sizeof(Sprite));
 
-
    snake[0].dx = 0;
    snake[0].dy = 0;
 
@@ -146,7 +146,6 @@ int main() {
 
 
     init_sprite(&food, 42, 12, 3, 3, food_bitmap);
-
 
     while(1){
         clear_screen();
@@ -212,7 +211,9 @@ int main() {
                 new_game = 1;
 
             }
-            if (snake[0].y == LCD_Y/3*2 && snake[0].x <= LCD_X && snake[0].x >= LCD_X) {
+
+            draw_line(LCD_X/3, LCD_Y/3*2, LCD_X, LCD_Y/3*2);
+            if (snake[0].y == LCD_Y/3*2 && snake[0].x <= LCD_X && snake[0].x >= LCD_X/3) {
                 lives--;
                 new_game = 1;
 
