@@ -94,6 +94,23 @@ void draw_walls() {
     draw_line(LCD_X/2, 7, LCD_X/2, LCD_Y/4);
     draw_line(LCD_X/3, LCD_Y/3*2, LCD_X, LCD_Y/3*2);
 
+    if (snake[0].x >= 0 && snake[0].x <= LCD_X/2 && snake[0].y == LCD_Y/2) {
+        lives--;
+        new_game = 1;
+    }
+    if (snake[0].x == LCD_X/2 && snake[0].y >= 7 && snake[0].y <= LCD_Y/4) {
+        lives--;
+        new_game = 1;
+
+    }
+
+    if (snake[0].y == LCD_Y/3*2 && snake[0].x <= LCD_X && snake[0].x >= LCD_X/3) {
+        lives--;
+        new_game = 1;
+
+    }
+
+
 }
 
 void draw_snake() {
@@ -201,23 +218,6 @@ int main() {
 
         if (walls == 1) {
             draw_walls();
-
-            if (snake[0].x >= 0 && snake[0].x <= LCD_X/2 && snake[0].y == LCD_Y/2) {
-                lives--;
-                new_game = 1;
-            }
-            if (snake[0].x == LCD_X/2 && snake[0].y >= 7 && snake[0].y <= LCD_Y/4) {
-                lives--;
-                new_game = 1;
-
-            }
-
-            draw_line(LCD_X/3, LCD_Y/3*2, LCD_X, LCD_Y/3*2);
-            if (snake[0].y == LCD_Y/3*2 && snake[0].x <= LCD_X && snake[0].x >= LCD_X/3) {
-                lives--;
-                new_game = 1;
-
-            }
         }
         if (snake[0].x >= 85) {
             snake[0].x = 0;
