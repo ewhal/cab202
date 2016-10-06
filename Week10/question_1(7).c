@@ -76,4 +76,5 @@ void check_presses_debounced(void) {
     // button is RELEASED. Left decreases the count by 1, right increases the
     // count by 1.
     // TODO
+    //
 }
