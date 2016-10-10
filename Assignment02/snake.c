@@ -22,9 +22,9 @@ Sprite *snake;
 Sprite food;
 
 unsigned char snake_bitmap [] = {
-    0b01000000,
     0b11100000,
-    0b01000000,
+    0b11100000,
+    0b11100000,
 };
 
 void draw_score() {
@@ -155,14 +155,13 @@ int main() {
    snake[0].dy = 0;
 
     unsigned char food_bitmap [] = {
-        0b01000000,
-        0b11100000,
-        0b01000000,
+        0b11000000,
+        0b11000000,
 
     };
 
 
-    init_sprite(&food, 42, 12, 3, 3, food_bitmap);
+    init_sprite(&food, 42, 12, 2, 2, food_bitmap);
 
     while(1){
         clear_screen();
