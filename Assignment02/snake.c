@@ -4,7 +4,6 @@
 #include "lcd.h"
 #include "graphics.h"
 #include <util/delay.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -121,6 +120,11 @@ void draw_snake() {
 }
 
 int main() {
+    ADMUX = (1<<REFS0);
+ 
+    // ADC Enable and pre-scaler of 128
+    // 8000000/128 = 62500
+    ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
     // SW0 and SW1 are connected to pins F6 and F5. Configure all pins as Input(0)
     DDRF = 0b00000000;
     DDRD = 0b00000000;
@@ -162,6 +166,8 @@ int main() {
 
 
     init_sprite(&food, 42, 12, 2, 2, food_bitmap);
+    uint16_t adc_result0, adc_result1;
+
 
     while(1){
         clear_screen();
@@ -170,6 +176,7 @@ int main() {
             respawn_snake(24);
             respawn_food(21221);
         }
+		adc_result0 = adc_read(0);      // read adc value at PA0
 
 
         draw_snake();
