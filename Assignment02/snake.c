@@ -60,6 +60,26 @@ void respawn_snake(int seed) {
     init_sprite(&snake[0], x, y, 3, 3, snake_bitmap);
     init_sprite(&snake[1], snake[0].x, y-4, 3, 3, snake_bitmap);
 }
+uint16_t adc_read(uint8_t ch)
+{
+    // select the corresponding channel 0~7
+    // ANDing with '7' will always keep the value
+    // of 'ch' between 0 and 7
+    ch &= 0b00000111;  // AND operation with 7
+    ADMUX = (ADMUX & 0xF8)|ch;     // clears the bottom 3 bits before ORing
+ 
+    // start single conversion
+    // write '1' to ADSC
+    ADCSRA |= (1<<ADSC);
+ 
+    // wait for conversion to complete
+    // ADSC becomes '0' again
+    // till then, run loop continuously
+    while(ADCSRA & (1<<ADSC));
+ 
+    return (ADC);
+}
+ 
 
 void snake_step() {
 
@@ -166,7 +186,8 @@ int main() {
 
 
     init_sprite(&food, 42, 12, 2, 2, food_bitmap);
-    uint16_t adc_result0, adc_result1;
+    uint16_t adc_result0;
+    int delay = 50;
 
 
     while(1){
@@ -176,7 +197,10 @@ int main() {
             respawn_snake(24);
             respawn_food(21221);
         }
-		adc_result0 = adc_read(0);      // read adc value at PA0
+        adc_result0 = adc_read(0);      // read adc value at PA0
+        if (adc_read < 500) {
+            delay = 25;
+        }
 
 
         draw_snake();
@@ -256,7 +280,7 @@ int main() {
 
         snake_step();
         show_screen();
-        _delay_ms(50);
+        _delay_ms(delay);
 
 
 
