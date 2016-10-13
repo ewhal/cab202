@@ -198,8 +198,12 @@ int main() {
             respawn_food(21221);
         }
         adc_result0 = adc_read(0);      // read adc value at PA0
-        if (adc_read < 500) {
+        if (adc_read < 750) {
             delay = 25;
+        } else if (delay < 500){ 
+            delay = 35;
+        }else {
+            delay = 50;
         }
 
 
