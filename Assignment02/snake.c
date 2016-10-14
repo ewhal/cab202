@@ -56,7 +56,7 @@ void respawn_snake(int seed) {
 
     char x = rand() % LCD_X;
     char y = rand() % LCD_Y;
-    
+
     init_sprite(&snake[0], x, y, 3, 3, snake_bitmap);
     init_sprite(&snake[1], snake[0].x, y-4, 3, 3, snake_bitmap);
 }
@@ -67,19 +67,19 @@ uint16_t adc_read(uint8_t ch)
     // of 'ch' between 0 and 7
     ch &= 0b00000111;  // AND operation with 7
     ADMUX = (ADMUX & 0xF8)|ch;     // clears the bottom 3 bits before ORing
- 
+
     // start single conversion
     // write '1' to ADSC
     ADCSRA |= (1<<ADSC);
- 
+
     // wait for conversion to complete
     // ADSC becomes '0' again
     // till then, run loop continuously
     while(ADCSRA & (1<<ADSC));
- 
+
     return (ADC);
 }
- 
+
 
 void snake_step() {
 
@@ -141,7 +141,7 @@ void draw_snake() {
 
 int main() {
     ADMUX = (1<<REFS0);
- 
+
     // ADC Enable and pre-scaler of 128
     // 8000000/128 = 62500
     ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
@@ -154,29 +154,30 @@ int main() {
 
     // turn OFF LED initially
     PORTB = 0b00000000;
-        // Set the CPU speed to 8MHz (you must also be compiling at 8MHz)
+    // Set the CPU speed to 8MHz (you must also be compiling at 8MHz)
     set_clock_speed(CPU_8MHz);
-    
+
     //initialise the LCD screen
     lcd_init(LCD_DEFAULT_CONTRAST);
-    
+
     //clear any characters that were written on the screen
     clear_screen();
-    
+
     ////array is too big for the screen size, so we break it into 3 parts
     draw_string(5,15,"Eliot Whalan");
     draw_string(5,25,"n9446800");
-    
-    
+
+
     //write the string on the lcd
     show_screen();
     _delay_ms(2000);
     clear_screen();
 
-   snake = (Sprite*) malloc(2 * sizeof(Sprite));
 
-   snake[0].dx = 0;
-   snake[0].dy = 0;
+    snake = (Sprite*) malloc(2 * sizeof(Sprite));
+
+    snake[0].dx = 0;
+    snake[0].dy = 0;
 
     unsigned char food_bitmap [] = {
         0b11000000,
@@ -266,17 +267,22 @@ int main() {
         if (snake[0].x <= -1) {
             snake[0].x = 84;
         }
-    
+
         if (snake[0].x == food.x && snake[0].y == food.y) {
             if (walls == 1) {
                 score += 2;
-                length += 2;
-            } 
-            score++;
+            } else {
+                // increment score
+                score++;
+
+            }
+            // increment length
             length++;
             respawn_food(score+food.y);
+            // realloc snake memory size
             snake = (Sprite*) realloc(snake, (length)*sizeof(Sprite));
 
+            // size snake length+1 sprite
             init_sprite(&snake[length], snake[length-1].x, snake[length-1].y, 3, 3, snake_bitmap);
 
         }
