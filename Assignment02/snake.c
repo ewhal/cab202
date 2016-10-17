@@ -50,6 +50,7 @@ void respawn_food(int seed) {
 
 
 }
+
 void respawn_snake(int seed) {
     srand(seed);
     snake = (Sprite*) realloc(snake, (2*sizeof(Sprite)));
@@ -60,6 +61,7 @@ void respawn_snake(int seed) {
     init_sprite(&snake[0], x, y, 3, 3, snake_bitmap);
     init_sprite(&snake[1], snake[0].x, y-4, 3, 3, snake_bitmap);
 }
+
 uint16_t adc_read(uint8_t ch)
 {
     // select the corresponding channel 0~7
@@ -199,9 +201,9 @@ int main() {
             respawn_food(21221);
         }
         adc_result0 = adc_read(0);      // read adc value at PA0
-        if (adc_read < 750) {
+        if (adc_result0 < 750) {
             delay = 25;
-        } else if (delay < 500){ 
+        } else if (adc_result0 < 500){ 
             delay = 35;
         }else {
             delay = 50;
