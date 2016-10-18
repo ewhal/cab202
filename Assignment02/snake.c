@@ -5,6 +5,8 @@
 #include "graphics.h"
 #include <util/delay.h>
 #include <stdio.h>
+#include <math.h>
+#include <time.h>
 #include <stdarg.h>
 #include <stdlib.h>
 
@@ -17,7 +19,7 @@ char walls = 0;
 
 char new_game = 1;
 
-Sprite *snake;
+Sprite snake[25];
 Sprite food;
 
 unsigned char snake_bitmap [] = {
@@ -53,7 +55,6 @@ void respawn_food(int seed) {
 
 void respawn_snake(int seed) {
     srand(seed);
-    snake = (Sprite*) realloc(snake, (2*sizeof(Sprite)));
 
     char x = rand() % LCD_X;
     char y = rand() % LCD_Y;
@@ -140,6 +141,25 @@ void draw_snake() {
     }
 
 }
+int sprites_collided() {
+    int snake_top = snake[0].y,
+        snake_bottom = snake_top + snake[0].height - 1,
+        snake_left = snake[0].x,
+        snake_right = snake_left + snake[0].width - 1;
+
+    int food_top = food.y,
+        food_bottom = food_top + food.height - 1,
+        food_left = food.x,
+        food_right = food_left + food.width - 1;
+
+    return !(
+        snake_bottom < food_top
+        || snake_top > food_bottom
+        || snake_right < food_left
+        || snake_left > food_right
+        );
+}
+
 
 int main() {
     ADMUX = (1<<REFS0);
@@ -176,9 +196,6 @@ int main() {
     clear_screen();
 
 
-    snake = (Sprite*) malloc(2 * sizeof(Sprite));
-
-    snake[0].dx = 0;
     snake[0].dy = 0;
 
     unsigned char food_bitmap [] = {
@@ -190,8 +207,6 @@ int main() {
 
     init_sprite(&food, 42, 12, 2, 2, food_bitmap);
     uint16_t adc_result0;
-    int delay = 50;
-
 
     while(1){
         clear_screen();
@@ -200,14 +215,7 @@ int main() {
             respawn_snake(24);
             respawn_food(21221);
         }
-        adc_result0 = adc_read(0);      // read adc value at PA0
-        if (adc_result0 < 750) {
-            delay = 25;
-        } else if (adc_result0 < 500){ 
-            delay = 35;
-        }else {
-            delay = 50;
-        }
+
 
 
         draw_snake();
@@ -224,7 +232,7 @@ int main() {
 
         // top sw1
         if(PIND & 0b00000010 ){
-            snake[0].dy = -1;
+            snake[0].dy = -3;
             snake[0].dx = 0;
 
             new_game = 0;
@@ -233,13 +241,13 @@ int main() {
         // right sw1
         if(PIND & 0b00000001 ){
             snake[0].dy = 0;
-            snake[0].dx = 1;
+            snake[0].dx = 3;
             new_game = 0;
         }
         // left sw1
         if(PINB & 0b00000010 ){
             snake[0].dy = 0;
-            snake[0].dx = -1;
+            snake[0].dx = -3;
             new_game = 0;
         }
         //center sw1
@@ -248,7 +256,7 @@ int main() {
 
         // bottom sw1
         if(PINB & 0b10000000 ){
-            snake[0].dy = 1;
+            snake[0].dy = 3;
             snake[0].dx = 0;
             new_game = 0;
         }
@@ -270,7 +278,7 @@ int main() {
             snake[0].x = 84;
         }
 
-        if (snake[0].x == food.x && snake[0].y == food.y) {
+        if (sprites_collided()) {
             if (walls == 1) {
                 score += 2;
             } else {
@@ -280,9 +288,7 @@ int main() {
             }
             // increment length
             length++;
-            respawn_food(score+food.y);
-            // realloc snake memory size
-            snake = (Sprite*) realloc(snake, (length)*sizeof(Sprite));
+            respawn_food(score+length);
 
             // size snake length+1 sprite
             init_sprite(&snake[length], snake[length-1].x, snake[length-1].y, 3, 3, snake_bitmap);
@@ -292,7 +298,14 @@ int main() {
 
         snake_step();
         show_screen();
-        _delay_ms(delay);
+        adc_result0 = adc_read(0);      // read adc value at PA0
+        if (adc_result0 < 750) {
+            _delay_ms(50);
+        } else if (adc_result0 < 500){ 
+            _delay_ms(100);
+        }else {
+            _delay_ms(200);
+        }
 
 
 
