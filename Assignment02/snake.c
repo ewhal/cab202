@@ -207,7 +207,7 @@ int main() {
 
 
     init_sprite(&food, 42, 12, 2, 2, food_bitmap);
-    uint16_t adc_result0;
+    uint16_t adc_result;
 
     while(lives != 0){
         clear_screen();
@@ -312,15 +312,18 @@ int main() {
 
         snake_step();
         show_screen();
-        adc_result0 = adc_read(0);      // read adc value at PA0
-        if (adc_result0 < 750) {
-            _delay_ms(50);
-        } else if (adc_result0 < 500){ 
-            _delay_ms(100);
-        }else {
+        adc_result = adc_read(1);      // read adc value at PA0
+        if (0 >= adc_result && adc_result <= 250) {
             _delay_ms(200);
+        } else if (251 >= adc_result && adc_result <= 450) {
+            _delay_ms(170);
+        } else if (451 >= adc_result && adc_result <= 650) {
+            _delay_ms(150);
+        } else if (651 >= adc_result && adc_result <= 850) {
+            _delay_ms(120);
+        } else if (851 >= adc_result && adc_result <= 1000) {
+            _delay_ms(100);
         }
-
 
 
     }
