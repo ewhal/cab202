@@ -5,9 +5,6 @@
 #include "graphics.h"
 #include <util/delay.h>
 #include <stdio.h>
-#include <math.h>
-#include <time.h>
-#include <stdarg.h>
 #include <stdlib.h>
 
 
@@ -46,11 +43,21 @@ void respawn_food(int seed) {
 
         }
     }
+    if (snake[0].y <= 7) {
+        respawn_food(seed*seed+seed);
+    }         
+    if (snake[0].y >= 49) {
+        respawn_food(seed*seed+seed);
+    }         
+    if (snake[0].x <= -1) {
+        respawn_food(seed*seed+seed);
+    }
+    if (snake[0].x >= 85) {
+        respawn_food(seed*seed+seed);
+    }         
 
     food.x = x;
     food.y = y;
-
-
 }
 
 void respawn_snake(int seed) {
@@ -105,34 +112,27 @@ void snake_step() {
 
     snake[0].x += snake[0].dx;
     snake[0].y += snake[0].dy;
-
-
-
 }
 
-void draw_walls() {
+int draw_wall(int x_start, int y_start, int length, int height) {
+    int snake_top = snake[0].y,
+        snake_bottom = snake_top + snake[0].height - 1,
+        snake_left = snake[0].x,
+        snake_right = snake_left + snake[0].width - 1;
 
-    draw_line(0, LCD_Y/2, LCD_X/2, LCD_Y/2);
-    draw_line(LCD_X/2, 7, LCD_X/2, LCD_Y/4);
-    draw_line(LCD_X/3, LCD_Y/3*2, LCD_X, LCD_Y/3*2);
+    int wall_top = y_start,
+        wall_bottom = wall_top + height,
+        wall_left = x_start,
+        wall_right = wall_left + length;
 
-    if (snake[0].x >= 0 && snake[0].x <= LCD_X/2 && snake[0].y == LCD_Y/2) {
-        lives--;
-        new_game = 1;
-    }
-    if (snake[0].x == LCD_X/2 && snake[0].y >= 7 && snake[0].y <= LCD_Y/4) {
-        lives--;
-        new_game = 1;
+    draw_line(wall_left, wall_top, wall_right, wall_bottom);
 
-    }
-
-    if (snake[0].y == LCD_Y/3*2 && snake[0].x <= LCD_X && snake[0].x >= LCD_X/3) {
-        lives--;
-        new_game = 1;
-
-    }
-
-
+    return !(
+        snake_bottom < wall_top
+        || snake_top > wall_bottom
+        || snake_right < wall_left
+        || snake_left > wall_right
+        );
 }
 
 void draw_snake() {
@@ -141,6 +141,7 @@ void draw_snake() {
     }
 
 }
+
 int sprites_collided() {
     int snake_top = snake[0].y,
         snake_bottom = snake_top + snake[0].height - 1,
@@ -208,7 +209,7 @@ int main() {
     init_sprite(&food, 42, 12, 2, 2, food_bitmap);
     uint16_t adc_result0;
 
-    while(1){
+    while(lives != 0){
         clear_screen();
         draw_score();
         if (new_game == 1) {
@@ -250,9 +251,6 @@ int main() {
             snake[0].dx = -3;
             new_game = 0;
         }
-        //center sw1
-        if(PINB & 0b00000001 ){
-        }
 
         // bottom sw1
         if(PINB & 0b10000000 ){
@@ -262,7 +260,24 @@ int main() {
         }
 
         if (walls == 1) {
-            draw_walls();
+            if (draw_wall(0, LCD_Y/2, 24, 0)) {
+                lives--;
+                length = 2;
+                new_game = 1;
+
+            }
+            if (draw_wall(LCD_X/2, 7, 0, 24)) {
+                lives--;
+                length = 2;
+                new_game = 1;
+
+            }
+            if (draw_wall(LCD_X/3*2, LCD_Y/3*2, 27, 0)) {
+                lives--;
+                length = 2;
+                new_game = 1;
+            }
+
         }
         if (snake[0].x >= 85) {
             snake[0].x = 0;
@@ -290,7 +305,6 @@ int main() {
             length++;
             respawn_food(score+length);
 
-            // size snake length+1 sprite
             init_sprite(&snake[length], snake[length-1].x, snake[length-1].y, 3, 3, snake_bitmap);
 
         }
@@ -310,6 +324,14 @@ int main() {
 
 
     }
+    //clear any characters that were written on the screen
+    clear_screen();
+
+    ////array is too big for the screen size, so we break it into 3 parts
+    draw_string(5,15,"Game Over");
+
+    //write the string on the lcd
+    show_screen();
 
 
     return 0;
