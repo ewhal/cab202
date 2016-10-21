@@ -6,11 +6,16 @@
 #include <util/delay.h>
 #include <stdio.h>
 #include <stdlib.h>
+/*
+ * snake teensy implmentation
+ * Name Eliot Whalan
+ * Student Num: n9446800
+ */
 
 
-
+// use chars to memory
 char lives = 3;
-int length = 2;
+char length = 2;
 char score = 0;
 char walls = 0;
 
@@ -70,8 +75,7 @@ void respawn_snake(int seed) {
     init_sprite(&snake[1], snake[0].x, y-4, 3, 3, snake_bitmap);
 }
 
-uint16_t adc_read(uint8_t ch)
-{
+uint16_t adc_read(uint8_t ch) {
     // select the corresponding channel 0~7
     // ANDing with '7' will always keep the value
     // of 'ch' between 0 and 7
@@ -104,7 +108,6 @@ void snake_step() {
     }
 
     for (int k = length; k > 0; k--){ 
-
         snake[k].x = (snake[k-1].x);
         snake[k].y = (snake[k-1].y);
 
@@ -120,7 +123,7 @@ int draw_wall(int x_start, int y_start, int length, int height) {
         snake_left = snake[0].x,
         snake_right = snake_left + snake[0].width - 1;
 
-    int wall_top = y_start,
+    int wall_top = y_start,stackoverflow
         wall_bottom = wall_top + height,
         wall_left = x_start,
         wall_right = wall_left + length;
