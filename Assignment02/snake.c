@@ -15,7 +15,7 @@
 
 // use chars to memory
 char lives = 3;
-char length = 2;
+int length = 2;
 char score = 0;
 char walls = 0;
 
@@ -32,9 +32,10 @@ unsigned char snake_bitmap [] = {
 
 void draw_score() {
     char buffer[80];
-    sprintf(buffer, "%02d (%d)", score, lives);
+    sprintf(buffer, "S: %02d L: (%d)", score, lives);
     draw_string(0, 0, buffer);
 }
+
 
 void respawn_food(int seed) {
     srand(seed);
@@ -43,26 +44,37 @@ void respawn_food(int seed) {
     char y = rand() % LCD_Y;
 
     for (int i = 1; i <= length; i++) {
-        if ((x == snake[i].x && y == snake[i].y )) {
-            respawn_food(seed*seed+seed);
+        char snake_top = snake[i].y,
+            snake_bottom = snake_top + snake[i].height - 1,
+            snake_left = snake[i].x,
+            snake_right = snake_left + snake[i].width - 1;
 
+        char food_top = food.y,
+            food_bottom = food_top + food.height - 1,
+            food_left = food.x,
+            food_right = food_left + food.width - 1;
+
+        if (!(snake_bottom < food_top
+                || snake_top > food_bottom
+                || snake_right < food_left
+                || snake_left > food_right
+            )) {
+
+            respawn_food(seed+length*score*lives);
         }
     }
-    if (snake[0].y <= 7) {
-        respawn_food(seed*seed+seed);
-    }         
-    if (snake[0].y >= 49) {
-        respawn_food(seed*seed+seed);
-    }         
-    if (snake[0].x <= -1) {
-        respawn_food(seed*seed+seed);
+    if (y <= 7) {
+        respawn_food(seed+length*score*lives);
+    } else if (y >= 49) {
+        respawn_food(seed+length*score*lives);
+    } else if (x <= -1) {
+        respawn_food(seed+length*score*lives);
+    } else if (x >= 85) {
+        respawn_food(seed+length*score*lives);
+    } else {
+        food.x = x;
+        food.y = y;
     }
-    if (snake[0].x >= 85) {
-        respawn_food(seed*seed+seed);
-    }         
-
-    food.x = x;
-    food.y = y;
 }
 
 void respawn_snake(int seed) {
@@ -73,6 +85,8 @@ void respawn_snake(int seed) {
 
     init_sprite(&snake[0], x, y, 3, 3, snake_bitmap);
     init_sprite(&snake[1], snake[0].x, y-4, 3, 3, snake_bitmap);
+    snake[0].dx = 0;
+    snake[0].dy = 0;
 }
 
 uint16_t adc_read(uint8_t ch) {
@@ -123,7 +137,7 @@ int draw_wall(int x_start, int y_start, int length, int height) {
         snake_left = snake[0].x,
         snake_right = snake_left + snake[0].width - 1;
 
-    int wall_top = y_start,stackoverflow
+    int wall_top = y_start,
         wall_bottom = wall_top + height,
         wall_left = x_start,
         wall_right = wall_left + length;
@@ -200,7 +214,7 @@ int main() {
     clear_screen();
 
 
-    snake[0].dy = 0;
+    respawn_snake(24);
 
     unsigned char food_bitmap [] = {
         0b11000000,
@@ -216,12 +230,9 @@ int main() {
         clear_screen();
         draw_score();
         if (new_game == 1) {
-            respawn_snake(24);
-            respawn_food(21221);
+            respawn_snake(24*length);
+            respawn_food(214*length*score);
         }
-
-
-
         draw_snake();
         draw_sprite(&food);
 
@@ -308,7 +319,7 @@ int main() {
             length++;
             respawn_food(score+length);
 
-            init_sprite(&snake[length], snake[length-1].x, snake[length-1].y, 3, 3, snake_bitmap);
+            init_sprite(&snake[length], snake[length-2].x, snake[length-2].y, 3, 3, snake_bitmap);
 
         }
 
@@ -319,13 +330,13 @@ int main() {
         if (0 >= adc_result && adc_result <= 250) {
             _delay_ms(200);
         } else if (251 >= adc_result && adc_result <= 450) {
-            _delay_ms(170);
+            _delay_ms(190);
         } else if (451 >= adc_result && adc_result <= 650) {
-            _delay_ms(150);
+            _delay_ms(180);
         } else if (651 >= adc_result && adc_result <= 850) {
-            _delay_ms(120);
+            _delay_ms(170);
         } else if (851 >= adc_result && adc_result <= 1000) {
-            _delay_ms(100);
+            _delay_ms(160);
         }
 
 
