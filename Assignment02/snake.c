@@ -293,6 +293,7 @@ int main() {
             }
 
         }
+        // magic side and top teleportation
         if (snake[0].x >= 85) {
             snake[0].x = 0;
 
@@ -324,7 +325,9 @@ int main() {
         }
 
 
+        //step snake
         snake_step();
+        // update screen
         show_screen();
         adc_result = adc_read(1);      // read adc value at PA0
         if (0 >= adc_result && adc_result <= 250) {
