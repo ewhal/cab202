@@ -112,6 +112,7 @@ uint16_t adc_read(uint8_t ch) {
 void snake_step() {
 
     for (int i = 1; i <= length; i++) {
+        // check for snake sprite collisions
         if (snake[0].x == snake[i].x && snake[0].y == snake[i].y && new_game == 0) {
             lives--;
             length = 2;
