@@ -14,7 +14,7 @@ cd ZDK
 make
 gcc ex1.c -std=gnu99 -L ../ZDK -I ../ZDK -lzdk -lncurses -lm 
 ```
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+ZDK and cab202_teensy libraries are owned by their respective authors.
